@@ -1,0 +1,156 @@
+[
+  Service {
+    _noble: Noble {
+      initialized: true,
+      address: 'unknown',
+      _state: 'poweredOn',
+      _bindings: [NobleMac],
+      _peripherals: [Object],
+      _services: [Object],
+      _characteristics: [Object],
+      _descriptors: [Object],
+      _discoveredPeripheralUUids: [Array],
+      _events: [Object: null prototype],
+      _eventsCount: 6,
+      _allowDuplicates: true
+    },
+    _peripheralId: 'c6b36041dbad42e18187aef8ad64bff4',
+    uuid: '15173000494711e98646d663bd873d93',
+    name: null,
+    type: null,
+    includedServiceUuids: null,
+    characteristics: null
+  },
+  Service {
+    _noble: Noble {
+      initialized: true,
+      address: 'unknown',
+      _state: 'poweredOn',
+      _bindings: [NobleMac],
+      _peripherals: [Object],
+      _services: [Object],
+      _characteristics: [Object],
+      _descriptors: [Object],
+      _discoveredPeripheralUUids: [Array],
+      _events: [Object: null prototype],
+      _eventsCount: 6,
+      _allowDuplicates: true
+    },
+    _peripheralId: 'c6b36041dbad42e18187aef8ad64bff4',
+    uuid: '15174000494711e98646d663bd873d93',
+    name: null,
+    type: null,
+    includedServiceUuids: null,
+    characteristics: null
+  },
+  Service {
+    _noble: Noble {
+      initialized: true,
+      address: 'unknown',
+      _state: 'poweredOn',
+      _bindings: [NobleMac],
+      _peripherals: [Object],
+      _services: [Object],
+      _characteristics: [Object],
+      _descriptors: [Object],
+      _discoveredPeripheralUUids: [Array],
+      _events: [Object: null prototype],
+      _eventsCount: 6,
+      _allowDuplicates: true
+    },
+    _peripheralId: 'c6b36041dbad42e18187aef8ad64bff4',
+    uuid: '15172000494711e98646d663bd873d93',
+    name: null,
+    type: null,
+    includedServiceUuids: null,
+    characteristics: null
+  },
+  Service {
+    _noble: Noble {
+      initialized: true,
+      address: 'unknown',
+      _state: 'poweredOn',
+      _bindings: [NobleMac],
+      _peripherals: [Object],
+      _services: [Object],
+      _characteristics: [Object],
+      _descriptors: [Object],
+      _discoveredPeripheralUUids: [Array],
+      _events: [Object: null prototype],
+      _eventsCount: 6,
+      _allowDuplicates: true
+    },
+    _peripheralId: 'c6b36041dbad42e18187aef8ad64bff4',
+    uuid: '15171000494711e98646d663bd873d93',
+    name: null,
+    type: null,
+    includedServiceUuids: null,
+    characteristics: null
+  },
+  Service {
+    _noble: Noble {
+      initialized: true,
+      address: 'unknown',
+      _state: 'poweredOn',
+      _bindings: [NobleMac],
+      _peripherals: [Object],
+      _services: [Object],
+      _characteristics: [Object],
+      _descriptors: [Object],
+      _discoveredPeripheralUUids: [Array],
+      _events: [Object: null prototype],
+      _eventsCount: 6,
+      _allowDuplicates: true
+    },
+    _peripheralId: 'c6b36041dbad42e18187aef8ad64bff4',
+    uuid: '15175000494711e98646d663bd873d93',
+    name: null,
+    type: null,
+    includedServiceUuids: null,
+    characteristics: null
+  },
+  Service {
+    _noble: Noble {
+      initialized: true,
+      address: 'unknown',
+      _state: 'poweredOn',
+      _bindings: [NobleMac],
+      _peripherals: [Object],
+      _services: [Object],
+      _characteristics: [Object],
+      _descriptors: [Object],
+      _discoveredPeripheralUUids: [Array],
+      _events: [Object: null prototype],
+      _eventsCount: 6,
+      _allowDuplicates: true
+    },
+    _peripheralId: 'c6b36041dbad42e18187aef8ad64bff4',
+    uuid: '15177000494711e98646d663bd873d93',
+    name: null,
+    type: null,
+    includedServiceUuids: null,
+    characteristics: null
+  },
+  Service {
+    _noble: Noble {
+      initialized: true,
+      address: 'unknown',
+      _state: 'poweredOn',
+      _bindings: [NobleMac],
+      _peripherals: [Object],
+      _services: [Object],
+      _characteristics: [Object],
+      _descriptors: [Object],
+      _discoveredPeripheralUUids: [Array],
+      _events: [Object: null prototype],
+      _eventsCount: 6,
+      _allowDuplicates: true
+    },
+    _peripheralId: 'c6b36041dbad42e18187aef8ad64bff4',
+    uuid: '15176000494711e98646d663bd873d93',
+    name: null,
+    type: null,
+    includedServiceUuids: null,
+    characteristics: null
+  }
+]

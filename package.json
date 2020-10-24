@@ -1,0 +1,32 @@
+{
+  "name": "@vliegwerk/xsens-dot",
+  "version": "1.0.0",
+  "description": "Node.js interface for the Xsens DOT motion tracker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/njanssen/node-xsens-dot.git"
+  },
+  "keywords": [
+    "xsens",
+    "dot",
+    "wearable",
+    "ble",
+    "bluetooth",
+    "sensors",
+    "imu"
+  ],
+  "author": "Niels Janssen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/njanssen/node-xsens-dot/issues"
+  },
+  "homepage": "https://github.com/njanssen/node-xsens-dot#readme",
+  "dependencies": {
+    "@abandonware/noble": "^1.9.2-10",
+    "debug": "^4.2.0"
+  }
+}
