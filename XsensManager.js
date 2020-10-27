@@ -139,11 +139,21 @@ class XsensManager extends EventEmitter {
 	subscribeBattery = async (identifier) => {
 		debug(`subscribeBattery - ${identifier}`)
 		const dot = this.devices.get(identifier)
-		await dot.subscribeBattery()
-		dot.on('battery',data => {
-			this.emit('battery',identifier,data)
-		})
+		if (typeof dot !== 'undefined') {
+			await dot.subscribeBattery()
+			dot.on('battery',data => {
+				this.emit('battery',identifier,data)
+			})
+		}
 	}
+
+	subscribeBatteryAll = async () => {
+		debug(`subscribeBatteryAll`)
+		for (let identifier of this.devices.keys()) {
+			this.subscribeBattery(identifier)
+		}
+	}
+
 }
 
 /**

@@ -9,7 +9,7 @@ xsensManager.on('error', (error) => {
 
 setTimeout(async () => {
     await xsensManager.connectAll()
-    await xsensManager.subscribeBattery()
+    await xsensManager.subscribeBatteryAll()
     xsensManager.on('battery', (identifier,data) => {
         debug(`Battery level (${identifier}) = ${data.level}%`)
     })
