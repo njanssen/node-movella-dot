@@ -75,6 +75,8 @@ class XsensDot extends EventEmitter {
 			this.emit('battery',battery)
 		})
 
+		batteryCharacteristic.read()
+
 		debug(`${this.identifier}/subscribeBattery - subscribed!`)
 	}
 
