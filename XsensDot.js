@@ -68,10 +68,10 @@ class XsensDot extends EventEmitter {
 
 		batteryCharacteristic.on('data',(data) => {
 			const battery = {
-				level : data.readInt8(),
-				charging : data.readInt8() == 1 ? true : false
+				level : data.readInt8(0),
+				charging : data.readInt8(1) ? true : false
 			}
-			debug(`${this.identifier}/battery `, battery)
+			debug(`${this.identifier}/battery`, battery)
 			this.emit('battery',battery)
 		})
 
