@@ -62,6 +62,7 @@ class XsensDot extends EventEmitter {
 	}
 
 	subscribeBattery = async () => {
+		debug(`${this.identifier}/subscribeBattery - subscribing.. `)
 		const batteryCharacteristic = this.characteristics[XSENS_DOT_SPEC.battery.characteristics.battery]
 		await batteryCharacteristic.subscribeAsync()
 
@@ -73,6 +74,8 @@ class XsensDot extends EventEmitter {
 				charging : charging
 			})
 		})
+
+		debug(`${this.identifier}/subscribeBattery - subscribed!`)
 	}
 
 	connected = () => {
