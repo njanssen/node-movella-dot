@@ -67,12 +67,12 @@ class XsensDot extends EventEmitter {
 		await batteryCharacteristic.subscribeAsync()
 
 		batteryCharacteristic.on('data',(data) => {
-			const level = data.readInt8()
-			const charging = data.readInt8() ? true : false
-			this.emit('battery',{
-				level : level,
-				charging : charging
-			})
+			const battery = {
+				level : data.readInt8(),
+				charging : data.readInt8() ? true : false
+			}
+			debug(`${this.identifier}/battery `, battery)
+			this.emit('battery',battery)
 		})
 
 		debug(`${this.identifier}/subscribeBattery - subscribed!`)
