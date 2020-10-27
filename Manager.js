@@ -28,7 +28,7 @@ class Manager extends EventEmitter {
 				case BLE_STATES.UNSUPPORTED:
 				case BLE_STATES.UNKNOWN:
 				case BLE_STATES.UNAUTHORIZED:
-					this.emit('error',new Error('central/stateChange: BLE adapter not available!'))
+					this.emit('error',new Error(`BLE adapter not available (${state})`))
 					break
 			}
 		})
@@ -81,13 +81,14 @@ class Manager extends EventEmitter {
 		this.central.stopScanningAsync()
 	}
 
-	availableDevices = () => {
+	nrOfAvailableDevices = () => {
 		return this.devices.size
 	}
 
-	connectedDevices = () => {
+	nrOfConnectedDevices = () => {
 		return Array.from(this.devices.values()).filter((dot) => {
-			dot.state === 'connected'
+			debug('connectedDevices - state: ',dot.state)
+			return dot.connected()
 		}).length
 	}
 

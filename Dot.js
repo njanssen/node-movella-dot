@@ -64,6 +64,10 @@ class Dot extends EventEmitter {
 		await this.peripheral.disconnectAsync()
 	}
 
+	connected = () => {
+		return this.state === PERIPHERAL_STATES.CONNECTED
+	}
+
 	get state() {
 		return this.peripheral.state
 	}

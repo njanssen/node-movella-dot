@@ -10,8 +10,8 @@ manager.on('error', (error) => {
 })
 
 setInterval(() => {
-    debug(`index - available devices: ${manager.availableDevices()}`)
-    debug(`index - connected devices: ${manager.connectedDevices()}`)
+    debug(`index - available devices: ${manager.nrOfAvailableDevices()}`)
+    debug(`index - connected devices: ${manager.nrOfConnectedDevices()}`)
 },2000)
 
 setTimeout(() => {

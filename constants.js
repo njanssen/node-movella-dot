@@ -13,6 +13,7 @@ export const PERIPHERAL_STATES = {
 	CONNECTED: 'connected',
 	CONNECTING: 'connecting',
 	DISCONNECTED: 'disconnected',
+	DISCONNECTED: 'disconnecting',
 }
 
 export const XSENS_DOT_BLE = {
