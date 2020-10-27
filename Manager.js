@@ -28,6 +28,7 @@ class Manager extends EventEmitter {
 				case BLE_STATES.UNSUPPORTED:
 				case BLE_STATES.UNKNOWN:
 				case BLE_STATES.UNAUTHORIZED:
+					this.emit('error',new Error('central/stateChange: BLE adapter not available!'))
 					break
 			}
 		})
