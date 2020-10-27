@@ -2,6 +2,7 @@
   "name": "@vliegwerk/xsens-dot",
   "version": "1.0.0",
   "description": "Node.js interface for the Xsens DOT motion tracker",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -27,6 +28,7 @@
   "homepage": "https://github.com/njanssen/node-xsens-dot#readme",
   "dependencies": {
     "@abandonware/noble": "^1.9.2-10",
-    "debug": "^4.2.0"
+    "debug": "^4.2.0",
+    "uuid": "^8.3.1"
   }
 }
