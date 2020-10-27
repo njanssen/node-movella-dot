@@ -43,13 +43,13 @@ class XsensDot extends EventEmitter {
 			} = await this.peripheral.discoverAllServicesAndCharacteristicsAsync()
 
 			this.characteristics = {};
-			for (let characteristic in characteristic) {
+			for (const characteristic of characteristic) {
 				this.characteristics[characteristic.uuid] = characteristic;
 			}
 
 		} catch(error) {
 			debug(`${this.identifier}/connect - Error occured`)
-			emit(error)
+			this.emit(error)
 			return
 		}
 
