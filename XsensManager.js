@@ -45,12 +45,9 @@ class XsensManager extends EventEmitter {
 				peripheral.advertisement.localName === XSENS_DOT_LOCALNAME &&
 				typeof peripheral.identifier === 'undefined'
 			) {
-				debug(
-					`central/discover: discovered a new DOT`
-				)
 				const identifier = uuidv4()
 				debug(
-					`central/discover - adding DOT to manager with UUID ${identifier}`
+					`central/discover - discovered new DOT (${identifier})`
 				)
 				peripheral.identifier = identifier
 				const dot = new Dot(identifier, { peripheral: peripheral })
@@ -91,15 +88,19 @@ class XsensManager extends EventEmitter {
 	}
 
 	connect = async (identifier) => {
-		debug(`connect - connecting to DOT ${identifier}`)
+		debug(`connect - ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (!dot.connected()) {
 				dot.removeAllListeners()
 
+				dot.on('disconnected', () => {
+					debug(`${identifier}/disconnected`)
+					dot.removeAllListeners()
+				})
+
 				dot.on('error', error => {
 					debug(error)
-
 					// TODO Handle error
 				})
 
@@ -111,14 +112,14 @@ class XsensManager extends EventEmitter {
 	}
 
 	connectAll = async () => {
-		debug(`disconnect - connecting all available devices`)
+		debug(`connectAll`)
 		for (let identifier of this.devices.keys()) {
 			this.connect(identifier)
 		}
 	}
 
 	disconnect = async (identifier) => {
-		debug(`disconnect - disconnecting device ${identifier}`)
+		debug(`disconnect - ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (dot.state === 'connecting' || dot.state === 'connected') {
@@ -129,7 +130,7 @@ class XsensManager extends EventEmitter {
 	}
 
 	disconnectAll = async () => {
-		debug(`disconnectAll - disconnecting all devices`)
+		debug(`disconnectAll`)
 		for (let identifier of this.devices.keys()) {
 			this.disconnect(identifier)
 		}

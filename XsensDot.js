@@ -22,43 +22,40 @@ class XsensDot extends EventEmitter {
 
 	connect = async () => {
 		if (this.connected()) {
-			debug('connect - already connected!')
+			debug(`${this.identifier}/connect - already connected!`)
 			return
 		}
 
-		debug('connect - connecting to ', this.identifier)
+		debug(`${this.identifier}/connect - connecting..`)
 
 		this.peripheral.removeAllListeners()
 
 		this.peripheral.on('disconnect', async () => {
-			debug('peripheral/disconnected - emitting state change')
-			await this.disconnect()
-			this.emit('stateChange', this.state)
+			debug(`${this.identifier}/disconnected`)
+			this.emit('disconnected')
 		})
-
-		debug('connect - connecting..')
 
 		try {
 			await this.peripheral.connectAsync()
-
-			debug('connect - discovering services and characteristics..')
 
 			const {
 				services,
 				characteristics,
 			} = await this.peripheral.discoverAllServicesAndCharacteristicsAsync()
+
 			this.services = services
 			this.characteristics = characteristics
 		} catch(error) {
+			debug(`${this.identifier}/connect - Error occured`)
 			emit(error)
 			return
 		}
 
-		debug('connect - connected!')
+		debug(`${this.identifier}/connect - connected!`)
 	}
 
 	disconnect = async () => {
-		debug('disconnect - disconnecting')
+		debug(`${this.identifier}/disconnect`)
 		await this.peripheral.disconnectAsync()
 	}
 
