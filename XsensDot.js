@@ -43,7 +43,7 @@ class XsensDot extends EventEmitter {
 			} = await this.peripheral.discoverAllServicesAndCharacteristicsAsync()
 
 			this.characteristics = {};
-			for (const characteristic of characteristic) {
+			for (const characteristic of characteristics) {
 				this.characteristics[characteristic.uuid] = characteristic;
 			}
 
@@ -63,7 +63,7 @@ class XsensDot extends EventEmitter {
 
 	subscribeBattery = async () => {
 		const batteryCharacteristic = this.characteristics[XSENS_DOT_SPEC.battery.characteristics.battery]
-		await batteryCharacteristic.subscribe()
+		await batteryCharacteristic.subscribeAsync()
 
 		batteryCharacteristic.on('data',(data) => {
 			const level = data.readInt8()
