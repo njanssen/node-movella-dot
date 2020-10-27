@@ -1,12 +1,12 @@
 import createDebug from 'debug'
 import EventEmitter from 'events'
 import { PERIPHERAL_STATES } from './constants.js'
-const debug = createDebug('xsens-dot:dot')
+const debug = createDebug('xsens:dot')
 
 /**
  * Xsens DOT Sensor Class (BLE peripheral)
  */
-class Dot extends EventEmitter {
+class XsensDot extends EventEmitter {
 	constructor(identifier, options = {}) {
 		super()
 
@@ -21,13 +21,12 @@ class Dot extends EventEmitter {
 	}
 
 	connect = async () => {
-		debug('connect - connecting to ', this.identifier)
-
-		if (this.state === PERIPHERAL_STATES.CONNECTED) {
-			// This peripheral is already connected
+		if (this.connected()) {
 			debug('connect - already connected!')
-			return true
+			return
 		}
+
+		debug('connect - connecting to ', this.identifier)
 
 		this.peripheral.removeAllListeners()
 
@@ -51,12 +50,11 @@ class Dot extends EventEmitter {
 			this.services = services
 			this.characteristics = characteristics
 		} catch(error) {
-			debug('connect - error occured: ',error)
-			return false
+			emit(error)
+			return
 		}
 
 		debug('connect - connected!')
-		return true
 	}
 
 	disconnect = async () => {
@@ -73,4 +71,4 @@ class Dot extends EventEmitter {
 	}
 }
 
-export default Dot
+export default XsensDot

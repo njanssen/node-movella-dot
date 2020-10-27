@@ -1,17 +1,16 @@
 import createDebug from 'debug'
 import noble from '@abandonware/noble'
 import EventEmitter from 'events'
+import Dot from './XsensDot.js'
 import { v4 as uuidv4 } from 'uuid'
 import { BLE_STATES, XSENS_DOT_LOCALNAME } from './constants.js'
-import Dot from './Dot.js'
-import { timeStamp } from 'console'
 
-const debug = createDebug('xsens-dot:manager')
+const debug = createDebug('xsens:manager')
 
 /**
  * Xsens DOT Manager Class (BLE central)
  */
-class Manager extends EventEmitter {
+class XsensManager extends EventEmitter {
 	constructor(options = {}) {
 		super()
 		this.central = noble
@@ -47,11 +46,11 @@ class Manager extends EventEmitter {
 				typeof peripheral.identifier === 'undefined'
 			) {
 				debug(
-					`central/discover: discovered a new ${XSENS_DOT_LOCALNAME}`
+					`central/discover: discovered a new DOT`
 				)
 				const identifier = uuidv4()
 				debug(
-					`central/discover - adding ${XSENS_DOT_LOCALNAME} to manager with UUID ${identifier}`
+					`central/discover - adding DOT to manager with UUID ${identifier}`
 				)
 				peripheral.identifier = identifier
 				const dot = new Dot(identifier, { peripheral: peripheral })
@@ -63,7 +62,7 @@ class Manager extends EventEmitter {
 			console.warn('central/warning: ', message)
 		})
 
-		debug('Manager initialized')
+		debug('Xsens DOT manager initialized')
 	}
 
 	reset = async () => {
@@ -81,27 +80,32 @@ class Manager extends EventEmitter {
 		this.central.stopScanningAsync()
 	}
 
-	nrOfAvailableDevices = () => {
+	nrOfAvailableDots = () => {
 		return this.devices.size
 	}
 
-	nrOfConnectedDevices = () => {
+	nrOfConnectedDots = () => {
 		return Array.from(this.devices.values()).filter((dot) => {
-			debug('connectedDevices - state: ',dot.state)
 			return dot.connected()
 		}).length
 	}
 
 	connect = async (identifier) => {
-		debug(`connect - connecting device ${identifier}`)
+		debug(`connect - connecting to DOT ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
-			if (dot.state !== 'connected') {
+			if (!dot.connected()) {
 				dot.removeAllListeners()
+
+				dot.on('error', error => {
+					debug(error)
+
+					// TODO Handle error
+				})
+
 				await dot.connect()
 
 				// TODO Create listeners for events
-
 			}
 		}
 	}
@@ -138,7 +142,7 @@ class Manager extends EventEmitter {
 class Singleton {
 	constructor() {
 		if (!Singleton.instance) {
-			Singleton.instance = new Manager()
+			Singleton.instance = new XsensManager()
 		}
 	}
 
