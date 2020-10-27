@@ -19,14 +19,14 @@ class XsensManager extends EventEmitter {
 		this.central.on('stateChange', (state) => {
 			debug('central/stateChange:', state)
 			switch (state) {
-				case BLE_STATES.POWERED_ON:
+				case BLE_STATES.poweredOn:
 					this.startScanning()
 					break
-				case BLE_STATES.POWERED_OFF:
-				case BLE_STATES.RESETTING:
-				case BLE_STATES.UNSUPPORTED:
-				case BLE_STATES.UNKNOWN:
-				case BLE_STATES.UNAUTHORIZED:
+				case BLE_STATES.poweredOff:
+				case BLE_STATES.resetting:
+				case BLE_STATES.unsupported:
+				case BLE_STATES.unknown:
+				case BLE_STATES.unauthorized:
 					this.emit('error',new Error(`BLE adapter not available (${state})`))
 					break
 			}
@@ -114,7 +114,7 @@ class XsensManager extends EventEmitter {
 	connectAll = async () => {
 		debug(`connectAll`)
 		for (let identifier of this.devices.keys()) {
-			this.connect(identifier)
+			await this.connect(identifier)
 		}
 	}
 
@@ -134,6 +134,15 @@ class XsensManager extends EventEmitter {
 		for (let identifier of this.devices.keys()) {
 			this.disconnect(identifier)
 		}
+	}
+
+	subscribeBattery = async (identifier) => {
+		debug(`subscribeBattery - ${identifier}`)
+		const dot = this.devices.get(identifier)
+		await dot.subscribeBattery()
+		dot.on('battery',data => {
+			this.emit('battery',identifier,data)
+		})
 	}
 }
 
