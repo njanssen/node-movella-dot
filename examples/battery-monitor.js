@@ -7,10 +7,11 @@ xsensManager.on('error', (error) => {
     process.exit(1)
 })
 
-setTimeout(async () => {
-    await xsensManager.connectAll()
-    await xsensManager.subscribeBatteryAll()
-    xsensManager.on('battery', (identifier,data) => {
-        debug(`Battery level (${identifier}) = ${data.level}%`)
-    })
-},10000)
+xsensManager.on('dot', async (identifier) => {
+    await xsensManager.connect(identifier)
+    await xsensManager.subscribeBattery(identifier)
+})
+
+xsensManager.on('battery', (identifier,data) => {
+    debug(`Battery level (${identifier}) = ${data.level}% ${data.changing ? "[charging]" : ""}`)
+})

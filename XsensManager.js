@@ -52,6 +52,8 @@ class XsensManager extends EventEmitter {
 				peripheral.identifier = identifier
 				const dot = new Dot(identifier, { peripheral: peripheral })
 				this.devices.set(identifier, dot)
+
+				this.emit('dot',identifier)
 			}
 		})
 
