@@ -142,6 +142,7 @@ class XsensManager extends EventEmitter {
 		if (typeof dot !== 'undefined') {
 			await dot.subscribeBattery()
 			dot.on('battery',data => {
+				debug(`${identifier}/battery`, data)
 				this.emit('battery',identifier,data)
 			})
 		}
