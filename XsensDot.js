@@ -119,7 +119,7 @@ class XsensDot extends EventEmitter {
 			switch (payload) {
 				case XSENS_DOT_PAYLOAD.extendedQuaternion:
 					measurement = {
-						timestamp: this.readTimestamp(0), // 4 bytes
+						timestamp: this.readTimestamp(data,0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
 						freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
 						status: this.readStatus(data, 32), // 2 bytes
@@ -129,14 +129,14 @@ class XsensDot extends EventEmitter {
 					break
 				case XSENS_DOT_PAYLOAD.completeQuaternion:
 					measurement = {
-						timestamp: this.readTimestamp(0), // 4 bytes
+						timestamp: this.readTimestamp(data,0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
 						freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
 					}
 					break
 				case XSENS_DOT_PAYLOAD.extendedEuler:
 					measurement = {
-						timestamp: this.readTimestamp(0), // 4 bytes
+						timestamp: this.readTimestamp(data,0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
 						freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
 						status: this.readStatus(data, 28), // 2 bytes
@@ -146,26 +146,26 @@ class XsensDot extends EventEmitter {
 					break
 				case XSENS_DOT_PAYLOAD.completeEuler:
 					measurement = {
-						timestamp: this.readTimestamp(0), // 4 bytes
+						timestamp: this.readTimestamp(data,0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
 						freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
 					}
 					break
 				case XSENS_DOT_PAYLOAD.orientationQuaternion:
 					measurement = {
-						timestamp: this.readTimestamp(0), // 4 bytes
+						timestamp: this.readTimestamp(data,0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
 					}
 					break
 				case XSENS_DOT_PAYLOAD.orientationEuler:
 					measurement = {
-						timestamp: this.readTimestamp(0), // 4 bytes
+						timestamp: this.readTimestamp(data,0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
 					}
 					break
 				case XSENS_DOT_PAYLOAD.freeAcceleration:
 					measurement = {
-						timestamp: this.readTimestamp(0), // 4 bytes
+						timestamp: this.readTimestamp(data,0), // 4 bytes
 						freeAcceleration: this.readAcceleration(data, 4), // 12 bytes
 					}
 					break
