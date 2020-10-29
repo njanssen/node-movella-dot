@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare:prettier": "prettier --write '**/*.{ts,js,css,html}'"
   },
   "repository": {
     "type": "git",
@@ -30,5 +30,8 @@
     "@abandonware/noble": "^1.9.2-10",
     "debug": "^4.2.0",
     "uuid": "^8.3.1"
+  },
+  "devDependencies": {
+    "prettier": "^2.1.2"
   }
 }

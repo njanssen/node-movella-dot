@@ -9,14 +9,12 @@ xsensManager.on('error', (error) => {
 
 xsensManager.on('dot', async (identifier) => {
 	await xsensManager.connect(identifier)
-	await xsensManager.subscribeBattery(identifier)
+	await xsensManager.subscribeMeasurement(identifier)
 })
 
-xsensManager.on('battery', (identifier, data) => {
+xsensManager.on('measurement', (identifier, data) => {
 	debug(
-		`Battery level (${identifier}) = ${data.level}% ${
-			data.changing ? '[charging]' : ''
-		}`
+		`Measurement (${identifier}):`,data
 	)
 })
 
