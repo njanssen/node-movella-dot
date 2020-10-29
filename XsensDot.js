@@ -1,6 +1,6 @@
 import createDebug from 'debug'
 import EventEmitter from 'events'
-import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD, XSENS_DOT_SPEC } from './constants.js'
+import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_SPEC } from './constants.js'
 const debug = createDebug('xsens:dot')
 
 /**
@@ -90,21 +90,21 @@ class XsensDot extends EventEmitter {
 		debug(`${this.identifier}/subscribeBattery - subscribed!`)
 	}
 
-	subscribeMeasurement = async (payload = XSENS_DOT_PAYLOAD.completeQuaternion) => {
+	subscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
 		debug(`${this.identifier}/subscribeMeasurement - subscribing.. `)
 
 		const service = XSENS_DOT_SPEC.measurement
 		const control = service.characteristics.control
-		const measurement = service.characteristics[service.payloadCharacteristic[payload]]
+		const measurement = service.characteristics[service.payloadCharacteristic[payloadType]]
 
 		if (typeof measurement === 'undefined') {
-			this.emit('error', new Error(`Subscription request for unknown measurement payload type (${payload})`))
+			this.emit('error', new Error(`Subscription request for unknown measurement payload type (${payloadType})`))
 		}
 
 		const controlCharacteristic = this.characteristics[control.uuid]
 		const measurementCharacteristic = this.characteristics[measurement.uuid]
 
-		const buffer = Buffer.from([control.type.measurement, control.action.start, measurement.pay[payload]])
+		const buffer = Buffer.from([control.type.measurement, control.action.start, measurement.payload[payloadType]])
 
 		await controlCharacteristic.writeAsync(buffer, false)
 
@@ -112,8 +112,8 @@ class XsensDot extends EventEmitter {
 
 		measurementCharacteristic.on('data', (data) => {
 			let measurement = {}
-			switch (payload) {
-				case XSENS_DOT_PAYLOAD.extendedQuaternion:
+			switch (payloadType) {
+				case XSENS_DOT_PAYLOAD_TYPE.extendedQuaternion:
 					measurement = {
 						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
@@ -123,14 +123,14 @@ class XsensDot extends EventEmitter {
 						clipCountGyr: this.readClipCount(data, 35), // 1 byte
 					}
 					break
-				case XSENS_DOT_PAYLOAD.completeQuaternion:
+				case XSENS_DOT_PAYLOAD_TYPE.completeQuaternion:
 					measurement = {
 						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
 						freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
 					}
 					break
-				case XSENS_DOT_PAYLOAD.extendedEuler:
+				case XSENS_DOT_PAYLOAD_TYPE.extendedEuler:
 					measurement = {
 						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
@@ -140,26 +140,26 @@ class XsensDot extends EventEmitter {
 						clipCountGyr: this.readClipCount(data, 31), // 1 byte
 					}
 					break
-				case XSENS_DOT_PAYLOAD.completeEuler:
+				case XSENS_DOT_PAYLOAD_TYPE.completeEuler:
 					measurement = {
 						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
 						freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
 					}
 					break
-				case XSENS_DOT_PAYLOAD.orientationQuaternion:
+				case XSENS_DOT_PAYLOAD_TYPE.orientationQuaternion:
 					measurement = {
 						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
 					}
 					break
-				case XSENS_DOT_PAYLOAD.orientationEuler:
+				case XSENS_DOT_PAYLOAD_TYPE.orientationEuler:
 					measurement = {
 						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
 					}
 					break
-				case XSENS_DOT_PAYLOAD.freeAcceleration:
+				case XSENS_DOT_PAYLOAD_TYPE.freeAcceleration:
 					measurement = {
 						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						freeAcceleration: this.readAcceleration(data, 4), // 12 bytes

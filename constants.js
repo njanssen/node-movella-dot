@@ -14,7 +14,7 @@ export const PERIPHERAL_STATES = {
 	disconnecting: 'disconnecting',
 }
 
-export const XSENS_DOT_PAYLOAD = Object.freeze({
+export const XSENS_DOT_PAYLOAD_TYPE = Object.freeze({
 	extendedQuaternion: 'extendedQuaternion',
 	completeQuaternion: 'completeQuaternion',
 	extendedEuler: 'extendedEuler',

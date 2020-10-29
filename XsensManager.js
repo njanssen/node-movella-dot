@@ -159,11 +159,11 @@ class XsensManager extends EventEmitter {
 		}
 	}
 
-	subscribeMeasurement = async (identifier, payload = undefined) => {
+	subscribeMeasurement = async (identifier, payloadType = undefined) => {
 		debug(`subscribeMeasurement - ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
-			await dot.subscribeMeasurement(payload)
+			await dot.subscribeMeasurement(payloadType)
 			dot.on('measurement', (data) => {
 				debug(`${identifier}/measurement`, data)
 				this.emit('measurement', identifier, data)
