@@ -104,11 +104,7 @@ class XsensDot extends EventEmitter {
 		const controlCharacteristic = this.characteristics[control.uuid]
 		const measurementCharacteristic = this.characteristics[measurement.uuid]
 
-		const buffer = Buffer.from([
-			control.type.measurement,
-			control.action.start,
-			measurement.payload[payload],
-		])
+		const buffer = Buffer.from([control.type.measurement, control.action.start, measurement.pay[payload]])
 
 		await controlCharacteristic.writeAsync(buffer, false)
 
@@ -119,53 +115,53 @@ class XsensDot extends EventEmitter {
 			switch (payload) {
 				case XSENS_DOT_PAYLOAD.extendedQuaternion:
 					measurement = {
-						timestamp: this.readTimestamp(data,0), // 4 bytes
+						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
 						freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
 						status: this.readStatus(data, 32), // 2 bytes
-						clipCountAcc: this.readClipCount(data,34), // 1 byte
-						clipCountGyr: this.readClipCount(data,35), // 1 byte
+						clipCountAcc: this.readClipCount(data, 34), // 1 byte
+						clipCountGyr: this.readClipCount(data, 35), // 1 byte
 					}
 					break
 				case XSENS_DOT_PAYLOAD.completeQuaternion:
 					measurement = {
-						timestamp: this.readTimestamp(data,0), // 4 bytes
+						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
 						freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
 					}
 					break
 				case XSENS_DOT_PAYLOAD.extendedEuler:
 					measurement = {
-						timestamp: this.readTimestamp(data,0), // 4 bytes
+						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
 						freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
 						status: this.readStatus(data, 28), // 2 bytes
-						clipCountAcc: this.readClipCount(data,30), // 1 byte
-						clipCountGyr: this.readClipCount(data,31), // 1 byte
+						clipCountAcc: this.readClipCount(data, 30), // 1 byte
+						clipCountGyr: this.readClipCount(data, 31), // 1 byte
 					}
 					break
 				case XSENS_DOT_PAYLOAD.completeEuler:
 					measurement = {
-						timestamp: this.readTimestamp(data,0), // 4 bytes
+						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
 						freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
 					}
 					break
 				case XSENS_DOT_PAYLOAD.orientationQuaternion:
 					measurement = {
-						timestamp: this.readTimestamp(data,0), // 4 bytes
+						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						quaternion: this.readQuaternion(data, 4), // 16 bytes
 					}
 					break
 				case XSENS_DOT_PAYLOAD.orientationEuler:
 					measurement = {
-						timestamp: this.readTimestamp(data,0), // 4 bytes
+						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						euler: this.readEuler(data, 4), // 12 bytes
 					}
 					break
 				case XSENS_DOT_PAYLOAD.freeAcceleration:
 					measurement = {
-						timestamp: this.readTimestamp(data,0), // 4 bytes
+						timestamp: this.readTimestamp(data, 0), // 4 bytes
 						freeAcceleration: this.readAcceleration(data, 4), // 12 bytes
 					}
 					break
@@ -210,16 +206,16 @@ class XsensDot extends EventEmitter {
 		}
 	}
 
-	readStatus =  (data, offset) => {
+	readStatus = (data, offset) => {
 		// Status
 		let status = data.readInt16LE(offset) // 2 bytes
-    	status = (status & 0x1FF) << 8
+		status = (status & 0x1ff) << 8
 		return status
 	}
 
-	readClipCount =  (data, offset) => {
+	readClipCount = (data, offset) => {
 		// Clip count
-		return data.readInt8(offset)  // 1 byte
+		return data.readInt8(offset) // 1 byte
 	}
 }
 

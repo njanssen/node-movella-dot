@@ -73,10 +73,10 @@ export const XSENS_DOT_SPEC = {
 				uuid: '15172003494711e98646d663bd873d93',
 				payload: {
 					// 1 byte
-					extendedQuaternion: 0x02,
-					completeQuaternion: 0x03,
-					extendedEuler: 0x07,
-					completeEuler: 0x10,
+					extendedQuaternion: 2,
+					completeQuaternion: 3,
+					extendedEuler: 7,
+					completeEuler: 16,
 				},
 			},
 			measurementShortPayload: {
@@ -84,9 +84,9 @@ export const XSENS_DOT_SPEC = {
 				uuid: '15172004494711e98646d663bd873d93',
 				payload: {
 					// 1 byte
-					orientationEuler: 0x04,
-					orientationQuaternion: 0x05,
-					freeAcceleration: 0x06,
+					orientationEuler: 4,
+					orientationQuaternion: 5,
+					freeAcceleration: 6,
 				},
 			},
 			orientationResetControl: '15172006494711e98646d663bd873d93', // Read, Write
