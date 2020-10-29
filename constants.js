@@ -1,5 +1,3 @@
-export const XSENS_DOT_LOCALNAME = 'Xsens DOT'
-
 export const BLE_STATES = {
 	poweredOn: 'poweredOn',
 	poweredOff: 'poweredOff',
@@ -16,21 +14,81 @@ export const PERIPHERAL_STATES = {
 	disconnecting: 'disconnecting',
 }
 
+export const XSENS_DOT_PAYLOAD = Object.freeze({
+	extendedQuaternion: 'extendedQuaternion',
+	completeQuaternion: 'completeQuaternion',
+	extendedEuler: 'extendedEuler',
+	completeEuler: 'completeEuler',
+	orientationEuler: 'orientationEuler',
+	orientationQuaternion: 'orientationQuaternion',
+	freeAcceleration: 'freeAcceleration',
+})
+
 export const XSENS_DOT_SPEC = {
+	localName: 'Xsens DOT',
 	configuration: {
 		uuid: '15171000494711e98646d663bd873d93',
 		characteristics: {
-			information: '15171001494711e98646d663bd873d93', // Read
-			control: '15171002494711e98646d663bd873d93', // Read, Write
-			report: '15171004494711e98646d663bd873d93', // Read, Write
+			information: {
+				// Read
+				uuid: '15171001494711e98646d663bd873d93',
+			},
+			control: {
+				// Read, Write
+				uuid: '15171002494711e98646d663bd873d93',
+			},
+			report: {
+				// Read, Write
+				uuid: '15171004494711e98646d663bd873d93',
+			},
 		},
 	},
 	measurement: {
 		uuid: '15172000494711e98646d663bd873d93',
+		payloadCharacteristic: {
+			extendedQuaternion: 'measurementMediumPayload',
+			completeQuaternion: 'measurementMediumPayload',
+			extendedEuler: 'measurementMediumPayload',
+			completeEuler: 'measurementMediumPayload',
+			orientationEuler: 'measurementShortPayload',
+			orientationQuaternion: 'measurementShortPayload',
+			freeAcceleration: 'measurementShortPayload',
+		},
 		characteristics: {
-			control: '15172001494711e98646d663bd873d93', // Read, Write
-			measurementMediumPayload: '15172003494711e98646d663bd873d93', // Notify
-			measurementShortPayload: '15172004494711e98646d663bd873d93', // Notify
+			control: {
+				// Read, Write
+				uuid: '15172001494711e98646d663bd873d93',
+				type: {
+					// 1 byte
+					measurement: 0x01,
+				},
+				action: {
+					// 1 byte
+					stop: 0x00,
+					start: 0x01,
+				},
+			},
+			measurementMediumPayload: {
+				// Notify
+				uuid: '15172003494711e98646d663bd873d93',
+				payload: {
+					// 1 byte
+					extendedQuaternion: 0x02,
+					completeQuaternion: 0x03,
+					extendedEuler: 0x07,
+					completeEuler: 0x10,
+				},
+			},
+			measurementShortPayload: {
+				// Notify
+				uuid: '15172004494711e98646d663bd873d93',
+				payload: {
+					// 1 byte
+					orientationEuler: 0x04,
+					orientationQuaternion: 0x05,
+					freeAcceleration: 0x06,
+				},
+			},
 			orientationResetControl: '15172006494711e98646d663bd873d93', // Read, Write
 			orientationResetStatus: '15172007494711e98646d663bd873d93', // Read
 			orientationResetData: '15172008494711e98646d663bd873d93', // Read
@@ -39,22 +97,40 @@ export const XSENS_DOT_SPEC = {
 	battery: {
 		uuid: '15173000494711e98646d663bd873d93',
 		characteristics: {
-			battery: '15173001494711e98646d663bd873d93', // Read, Notify
+			battery: {
+				// Read, Notify
+				uuid: '15173001494711e98646d663bd873d93',
+			},
 		},
 	},
 	crash: {
 		uuid: '15176000494711e98646d663bd873d9',
 		characteristics: {
-			manager: '15176001494711e98646d663bd873d9', // Read, Write
-			information: '15176002494711e98646d663bd873d9', // Notify
+			manager: {
+				// Read, Write
+				uuid: '15176001494711e98646d663bd873d9',
+			},
+			information: {
+				// Notify
+				uuid: '15176002494711e98646d663bd873d9',
+			},
 		},
 	},
 	message: {
 		uuid: '15177000494711e98646d663bd873d93',
 		characteristics: {
-			control: '15177001494711e98646d663bd873d93', // Write
-			acknowledge: '15177002494711e98646d663bd873d93', // Read
-			notification: '15177003494711e98646d663bd873d93', // Notify
+			control: {
+				// Write
+				uuid: '15177001494711e98646d663bd873d93',
+			},
+			acknowledge: {
+				// Read
+				uuid: '15177002494711e98646d663bd873d93',
+			},
+			notification: {
+				// Notify
+				uuid: '15177003494711e98646d663bd873d93',
+			},
 		},
 	},
 }

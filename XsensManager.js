@@ -3,7 +3,7 @@ import noble from '@abandonware/noble'
 import EventEmitter from 'events'
 import Dot from './XsensDot.js'
 import { v4 as uuidv4 } from 'uuid'
-import { BLE_STATES, XSENS_DOT_LOCALNAME } from './constants.js'
+import { BLE_STATES, XSENS_DOT_SPEC } from './constants.js'
 
 const debug = createDebug('xsens:manager')
 
@@ -42,7 +42,7 @@ class XsensManager extends EventEmitter {
 
 		this.central.on('discover', async (peripheral) => {
 			if (
-				peripheral.advertisement.localName === XSENS_DOT_LOCALNAME &&
+				peripheral.advertisement.localName === XSENS_DOT_SPEC.localName &&
 				typeof peripheral.identifier === 'undefined'
 			) {
 				const identifier = uuidv4()
@@ -109,10 +109,7 @@ class XsensManager extends EventEmitter {
 				// TODO Create listeners for events
 			}
 		} else {
-			this.emit(
-				'error',
-				new Error(`Connection request for unknown identifier (${identifier})`)
-			)
+			this.emit('error', new Error(`Connection request for unknown identifier (${identifier})`))
 		}
 	}
 
@@ -132,10 +129,7 @@ class XsensManager extends EventEmitter {
 				dot.removeAllListeners()
 			}
 		} else {
-			this.emit(
-				'error',
-				new Error(`Disconnecting request for unknown identifier (${identifier})`)
-			)
+			this.emit('error', new Error(`Disconnecting request for unknown identifier (${identifier})`))
 		}
 	}
 
@@ -165,11 +159,11 @@ class XsensManager extends EventEmitter {
 		}
 	}
 
-	subscribeMeasurement = async (identifier) => {
+	subscribeMeasurement = async (identifier, payload = undefined) => {
 		debug(`subscribeMeasurement - ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
-			await dot.subscribeMeasurement()
+			await dot.subscribeMeasurement(payload)
 			dot.on('measurement', (data) => {
 				debug(`${identifier}/measurement`, data)
 				this.emit('measurement', identifier, data)
