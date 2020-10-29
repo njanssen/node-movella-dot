@@ -115,7 +115,7 @@ class XsensDot extends EventEmitter {
 		await measurementCharacteristic.subscribeAsync()
 
 		measurementCharacteristic.on('data', (data) => {
-			const measurement = {}
+			let measurement = {}
 			switch (payload) {
 				case XSENS_DOT_PAYLOAD.extendedQuaternion:
 					measurement = {
