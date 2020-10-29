@@ -13,9 +13,7 @@ xsensManager.on('dot', async (identifier) => {
 })
 
 xsensManager.on('measurement', (identifier, data) => {
-	debug(
-		`Measurement (${identifier}):`,data
-	)
+	console.log(`Measurement (${identifier}):`, data)
 })
 
 process.on('SIGINT', async () => {

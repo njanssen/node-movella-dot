@@ -13,11 +13,7 @@ xsensManager.on('dot', async (identifier) => {
 })
 
 xsensManager.on('battery', (identifier, data) => {
-	debug(
-		`Battery level (${identifier}) = ${data.level}% ${
-			data.changing ? '[charging]' : ''
-		}`
-	)
+	console.log(`Battery level (${identifier}) = ${data.level}% ${data.charging ? '[charging]' : ''}`)
 })
 
 process.on('SIGINT', async () => {
