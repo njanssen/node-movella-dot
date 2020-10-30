@@ -147,14 +147,16 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.subscribeBattery()) {
-				dot.on('battery', function listenerBattery(data) {
-					debug(`${identifier}/listenerBattery`, data)
-					this.emit('battery', identifier, data)
-				}.bind(this))
+				dot.on('battery', this.listenerBattery.bind(dot))
 			}
 		} else {
 			this.emit('error', new Error(`Battery subscription request for unknown identifier (${identifier})`))
 		}
+	}
+
+	listenerBattery = (data) => {
+		debug(`${identifier}/listenerBattery`, data)
+		this.emit('battery', identifier, data)
 	}
 
 	unsubscribeBatteryAll = async () => {
@@ -169,7 +171,7 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.unsubscribeBattery()) {
-				dot.removeListener('battery', listenerBattery)
+				dot.removeListener('battery', this.listenerBattery)
 			}
 		} else {
 			this.emit('error', new Error(`Battery unsubscription request for unknown identifier (${identifier})`))
