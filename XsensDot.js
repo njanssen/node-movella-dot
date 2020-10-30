@@ -297,7 +297,8 @@ class XsensDot extends EventEmitter {
 	}
 
 	readTag = (data, offset) => {
-		return data.toString('utf8',offset)
+		const bytes = data.slice(offset,offset+16)
+		return bytes.toString('utf8',0,bytes.indexOf('\x00'))
 	}
 
 	readTimestamp = (data, offset) => {
