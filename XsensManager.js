@@ -147,14 +147,14 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.subscribeBattery()) {
-				dot.on('battery', this.listenerBattery.bind(dot))
+				dot.on('battery', this.listenerBattery.bind(this,identifier))
 			}
 		} else {
 			this.emit('error', new Error(`Battery subscription request for unknown identifier (${identifier})`))
 		}
 	}
 
-	listenerBattery = (data) => {
+	listenerBattery = (identifier,data) => {
 		debug(`${identifier}/listenerBattery`, data)
 		this.emit('battery', identifier, data)
 	}
