@@ -17,6 +17,7 @@ xsensManager.on('battery', (identifier, data) => {
 })
 
 process.on('SIGINT', async () => {
+	await xsensManager.unsubscribeBatteryAll()
 	await xsensManager.disconnectAll()
 	process.exit()
 })

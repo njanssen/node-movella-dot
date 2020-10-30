@@ -24,7 +24,7 @@ export const XSENS_DOT_PAYLOAD_TYPE = Object.freeze({
 	freeAcceleration: 'freeAcceleration',
 })
 
-export const XSENS_DOT_SPEC = {
+export const XSENS_DOT_BLE_SPEC = {
 	localName: 'Xsens DOT',
 	configuration: {
 		uuid: '15171000494711e98646d663bd873d93',

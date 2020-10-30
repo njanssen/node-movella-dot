@@ -3,7 +3,7 @@ import noble from '@abandonware/noble'
 import EventEmitter from 'events'
 import Dot from './XsensDot.js'
 import { v4 as uuidv4 } from 'uuid'
-import { BLE_STATES, XSENS_DOT_SPEC } from './constants.js'
+import { BLE_STATES, XSENS_DOT_BLE_SPEC } from './constants.js'
 
 const debug = createDebug('xsens:manager')
 
@@ -41,10 +41,7 @@ class XsensManager extends EventEmitter {
 		})
 
 		this.central.on('discover', async (peripheral) => {
-			if (
-				peripheral.advertisement.localName === XSENS_DOT_SPEC.localName &&
-				typeof peripheral.identifier === 'undefined'
-			) {
+			if (peripheral.advertisement.localName === XSENS_DOT_BLE_SPEC.localName && typeof peripheral.identifier === 'undefined') {
 				const identifier = uuidv4()
 				debug(`central/discover - discovered new DOT (${identifier})`)
 				peripheral.identifier = identifier
@@ -105,8 +102,6 @@ class XsensManager extends EventEmitter {
 				})
 
 				await dot.connect()
-
-				// TODO Create listeners for events
 			}
 		} else {
 			this.emit('error', new Error(`Connection request for unknown identifier (${identifier})`))
@@ -140,18 +135,6 @@ class XsensManager extends EventEmitter {
 		}
 	}
 
-	subscribeBattery = async (identifier) => {
-		debug(`subscribeBattery - ${identifier}`)
-		const dot = this.devices.get(identifier)
-		if (typeof dot !== 'undefined') {
-			await dot.subscribeBattery()
-			dot.on('battery', (data) => {
-				debug(`${identifier}/battery`, data)
-				this.emit('battery', identifier, data)
-			})
-		}
-	}
-
 	subscribeBatteryAll = async () => {
 		debug(`subscribeBatteryAll`)
 		for (let identifier of this.devices.keys()) {
@@ -159,22 +142,84 @@ class XsensManager extends EventEmitter {
 		}
 	}
 
-	subscribeMeasurement = async (identifier, payloadType = undefined) => {
-		debug(`subscribeMeasurement - ${identifier}`)
+	subscribeBattery = async (identifier) => {
+		debug(`subscribeBattery - ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
-			await dot.subscribeMeasurement(payloadType)
-			dot.on('measurement', (data) => {
-				debug(`${identifier}/measurement`, data)
-				this.emit('measurement', identifier, data)
-			})
+			if (await dot.subscribeBattery()) {
+				dot.on(
+					'battery',
+					(listenerBattery = (data) => {
+						debug(`${identifier}/listenerBattery`, data)
+						this.emit('battery', identifier, data)
+					})
+				)
+			}
+		} else {
+			this.emit('error', new Error(`Battery subscription request for unknown identifier (${identifier})`))
 		}
 	}
 
-	subscribeMeasurementAll = async () => {
+	unsubscribeBatteryAll = async () => {
+		debug(`unsubscribeBatteryAll`)
+		for (let identifier of this.devices.keys()) {
+			await this.unsubscribeBattery(identifier)
+		}
+	}
+
+	unsubscribeBattery = async (identifier) => {
+		debug(`unsubscribeBattery - ${identifier}`)
+		const dot = this.devices.get(identifier)
+		if (typeof dot !== 'undefined') {
+			if (await dot.unsubscribeBattery()) {
+				dot.removeListener('battery', listenerBattery)
+			}
+		} else {
+			this.emit('error', new Error(`Battery unsubscription request for unknown identifier (${identifier})`))
+		}
+	}
+
+	subscribeMeasurementAll = async (payloadType) => {
 		debug(`subscribeMeasurementAll`)
 		for (let identifier of this.devices.keys()) {
-			this.subscribeMeasurement(identifier)
+			this.subscribeMeasurement(identifier, payloadType)
+		}
+	}
+
+	subscribeMeasurement = async (identifier, payloadType) => {
+		debug(`subscribeMeasurement - ${identifier}`)
+		const dot = this.devices.get(identifier)
+		if (typeof dot !== 'undefined') {
+			if (await dot.subscribeMeasurement(payloadType)) {
+				dot.on(
+					'measurement',
+					(listenerMeasurement = (data) => {
+						debug(`${identifier}/listenerMeasurement`, data)
+						this.emit('measurement', identifier, data)
+					})
+				)
+			}
+		} else {
+			this.emit('error', new Error(`Measurement subscription request for unknown identifier (${identifier})`))
+		}
+	}
+
+	unsubscribeMeasurementAll = async (payloadType) => {
+		debug(`unsubscribeMeasurementAll`)
+		for (let identifier of this.devices.keys()) {
+			await this.unsubscribeMeasurement(identifier, payloadType)
+		}
+	}
+
+	unsubscribeMeasurement = async (identifier, payloadType) => {
+		debug(`unsubscribeMeasurement - ${identifier}`)
+		const dot = this.devices.get(identifier)
+		if (typeof dot !== 'undefined') {
+			if (await dot.unsubscribeMeasurement(payloadType)) {
+				dot.removeListener('measurement', listenerMeasurement)
+			}
+		} else {
+			this.emit('error', new Error(`Measurement unsubscription request for unknown identifier (${identifier})`))
 		}
 	}
 }
