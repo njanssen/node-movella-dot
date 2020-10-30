@@ -2,8 +2,7 @@ import xsensManager from '../index.js'
 
 xsensManager.on('dot', async (identifier) => {
 	await xsensManager.connect(identifier)
-	const configuration = await xsensManager.queryConfiguration(identifier)
-	console.log(`Configuration (${identifier}): `,configuration)
+	console.log(`Configuration (${identifier}): `,xsensManager.configuration(identifier))
 	await xsensManager.disconnect(identifier)
 })
 

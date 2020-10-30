@@ -1,5 +1,6 @@
 import createDebug from 'debug'
 import EventEmitter from 'events'
+import { config } from 'process'
 import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from './constants.js'
 const debug = createDebug('xsens:dot')
 
@@ -11,7 +12,7 @@ class XsensDot extends EventEmitter {
 		super()
 
 		this.identifier = identifier
-		this.tag = undefined
+		this.configuration = {}
 
 		this.peripheral = options.peripheral
 		this.characteristics = options.characteristics || {}
@@ -43,6 +44,9 @@ class XsensDot extends EventEmitter {
 			for (const characteristic of characteristics) {
 				this.characteristics[characteristic.uuid] = characteristic
 			}
+
+			this.configuration = await this.queryConfiguration()
+
 		} catch (error) {
 			debug(`${this.identifier}/connect - Error occured:`, error)
 			this.emit('error', error)
@@ -83,7 +87,6 @@ class XsensDot extends EventEmitter {
 		}
 
 		debug(`${this.identifier}/queryConfiguration:`, configuration)
-
 		return configuration
 	}
 

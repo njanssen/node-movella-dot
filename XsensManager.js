@@ -139,22 +139,15 @@ class XsensManager extends EventEmitter {
 		}
 	}
 
-	queryConfigurationAll = async () => {
-		debug(`queryConfigurationAll`)
-		for (let identifier of this.devices.keys()) {
-			this.queryConfiguration(identifier)
-		}
-	}
-
-	queryConfiguration = async (identifier) => {
-		debug(`queryConfiguration - ${identifier}`)
+	configuration = (identifier) => {
+		debug(`configuration - ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
-			const configuration = await dot.queryConfiguration()
-			debug(`${identifier}/queryConfiguration:`, configuration)
+			const configuration = dot.configuration
+			debug(`${identifier}/configuration:`, configuration)
 			return configuration
 		} else {
-			this.emit('error', new Error(`Device status report subscription request for unknown identifier (${identifier})`))
+			this.emit('error', new Error(`Get configuration request for unknown identifier (${identifier})`))
 			return
 		}
 	}
