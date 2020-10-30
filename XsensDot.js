@@ -351,7 +351,6 @@ class XsensDot extends EventEmitter {
 
 	get connected() {
 		const connected = this.state === PERIPHERAL_STATES.connected && Object.keys(this.characteristics).length > 0
-		debug(`${this.identifier}/connected:`, connected)
 		return connected
 	}
 
