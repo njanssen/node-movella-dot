@@ -97,9 +97,11 @@ class XsensDot extends EventEmitter {
 		const batteryCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.battery.characteristics.battery.uuid]
 
 		await batteryCharacteristic.unsubscribeAsync()
-		batteryCharacteristic.removeListener('data', listenerBattery)
-
 		debug(`${this.identifier}/unsubscribeBattery - unsubscribed!`)
+
+		batteryCharacteristic.removeListener('data', listenerBattery)
+		debug(`${this.identifier}/unsubscribeBattery - removed data listener`)
+
 		return true
 	}
 
@@ -211,9 +213,11 @@ class XsensDot extends EventEmitter {
 		const measurementCharacteristic = this.characteristics[measurement.uuid]
 
 		await measurementCharacteristic.unsubscribeAsync()
-		measurementCharacteristic.removeListener('data', listenerMeasurement)
-
 		debug(`${this.identifier}/unsubscribeMeasurement - unsubscribed!`)
+
+		measurementCharacteristic.removeListener('data', listenerMeasurement)
+		debug(`${this.identifier}/unsubscribeMeasurement - removed data listener`)
+
 		return true
 	}
 
