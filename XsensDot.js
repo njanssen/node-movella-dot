@@ -1,6 +1,5 @@
 import createDebug from 'debug'
 import EventEmitter from 'events'
-import { StringDecoder } from 'string_decoder'
 import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from './constants.js'
 const debug = createDebug('xsens:dot')
 
@@ -298,9 +297,7 @@ class XsensDot extends EventEmitter {
 	}
 
 	readTag = (data, offset) => {
-		const decoder = new StringDecoder('utf8')
-		const tagBytes = data.slice(offset,offset+16)
-		return decoder.write(tagBytes)
+		return data.toString('utf8',offset)
 	}
 
 	readTimestamp = (data, offset) => {
