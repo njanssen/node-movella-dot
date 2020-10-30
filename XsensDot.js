@@ -21,7 +21,7 @@ class XsensDot extends EventEmitter {
 	}
 
 	connect = async () => {
-		if (this.connected()) {
+		if (this.connected) {
 			debug(`${this.identifier}/connect - already connected!`)
 			return
 		}
@@ -58,24 +58,10 @@ class XsensDot extends EventEmitter {
 		await this.peripheral.disconnectAsync()
 	}
 
-	connected = () => {
-		const connected = this.state === PERIPHERAL_STATES.connected && Object.keys(this.characteristics).length > 0
-		debug(`${this.identifier}/connected:`, connected)
-		return connected
-	}
-
-	connecting = () => {
-		return this.state === PERIPHERAL_STATES.connecting
-	}
-
-	get state() {
-		return this.peripheral.state
-	}
-
 	subscribeBattery = async () => {
 		debug(`${this.identifier}/subscribeBattery - subscribing.. `)
 
-		if (!this.connected()) {
+		if (!this.connected) {
 			debug(`${this.identifier}/subscribeBattery - Battery subscription request received while not connected`)
 			return false
 		}
@@ -103,7 +89,7 @@ class XsensDot extends EventEmitter {
 	unsubscribeBattery = async () => {
 		debug(`${this.identifier}/unsubscribeBattery - unsubscribing.. `)
 
-		if (!this.connected()) {
+		if (!this.connected) {
 			debug(`${this.identifier}/unsubscribeBattery - Battery unsubscription request received while not connected`)
 			return false
 		}
@@ -120,7 +106,7 @@ class XsensDot extends EventEmitter {
 	subscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
 		debug(`${this.identifier}/subscribeMeasurement - subscribing.. `)
 
-		if (this.connected()) {
+		if (this.connected) {
 			debug(`${this.identifier}/subscribeMeasurement - Measurement subscription request received while not connected`)
 			return false
 		}
@@ -210,7 +196,7 @@ class XsensDot extends EventEmitter {
 	unsubscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
 		debug(`${this.identifier}/unsubscribeMeasurement - unsubscribing.. `)
 
-		if (!this.connected()) {
+		if (!this.connected) {
 			debug(`${this.identifier}/unsubscribeMeasurement - Measurement unsubscription request received while not connected`)
 			return false
 		}
@@ -275,6 +261,22 @@ class XsensDot extends EventEmitter {
 		// Clip count
 		return data.readInt8(offset) // 1 byte
 	}
+
+
+	get connected() {
+		const connected = this.state === PERIPHERAL_STATES.connected && Object.keys(this.characteristics).length > 0
+		debug(`${this.identifier}/connected:`, connected)
+		return connected
+	}
+
+	get connecting() {
+		return this.state === PERIPHERAL_STATES.connecting
+	}
+
+	get state() {
+		return this.peripheral.state
+	}
+
 }
 
 export default XsensDot

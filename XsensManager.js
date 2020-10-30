@@ -80,7 +80,7 @@ class XsensManager extends EventEmitter {
 
 	nrOfConnectedDots = () => {
 		return Array.from(this.devices.values()).filter((dot) => {
-			return dot.connected()
+			return dot.connected
 		}).length
 	}
 
@@ -88,7 +88,7 @@ class XsensManager extends EventEmitter {
 		debug(`connect - ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
-			if (!dot.connected()) {
+			if (!dot.connected) {
 				dot.removeAllListeners()
 
 				dot.on('disconnected', () => {
@@ -119,7 +119,7 @@ class XsensManager extends EventEmitter {
 		debug(`disconnect - ${identifier}`)
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
-			if (dot.connecting() || dot.connected()) {
+			if (dot.connecting || dot.connected) {
 				await dot.disconnect()
 				dot.removeAllListeners()
 			}
