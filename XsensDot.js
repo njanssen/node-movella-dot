@@ -59,7 +59,7 @@ class XsensDot extends EventEmitter {
 	}
 
 	connected = () => {
-		const connected = typeof this.characteristics !== undefined && this.state === PERIPHERAL_STATES.connected
+		const connected = this.state === PERIPHERAL_STATES.connected && Object.keys(this.characteristics).length > 0
 		debug(`${this.identifier}/connected:`, connected)
 		return connected
 	}
@@ -92,7 +92,7 @@ class XsensDot extends EventEmitter {
 			}
 			debug(`${this.identifier}/listenerBattery`, battery)
 			this.emit('battery', battery)
-		})
+		}.bind(this))
 
 		batteryCharacteristic.read()
 
@@ -201,7 +201,7 @@ class XsensDot extends EventEmitter {
 			}
 			debug(`${this.identifier}/listenerMeasurement`, measurement)
 			this.emit('measurement', measurement)
-		})
+		}.bind(this))
 
 		debug(`${this.identifier}/subscribeMeasurement - subscribed!`)
 		return true
