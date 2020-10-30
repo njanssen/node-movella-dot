@@ -139,6 +139,26 @@ class XsensManager extends EventEmitter {
 		}
 	}
 
+	queryConfigurationAll = async () => {
+		debug(`queryConfigurationAll`)
+		for (let identifier of this.devices.keys()) {
+			this.queryConfiguration(identifier)
+		}
+	}
+
+	queryConfiguration = async (identifier) => {
+		debug(`queryConfiguration - ${identifier}`)
+		const dot = this.devices.get(identifier)
+		if (typeof dot !== 'undefined') {
+			const configuration = await dot.queryConfiguration()
+			debug(`${this.identifier}/queryConfiguration:`, configuration)
+			return configuration
+		} else {
+			this.emit('error', new Error(`Device status report subscription request for unknown identifier (${identifier})`))
+			return
+		}
+	}
+
 	subscribeStatusAll = async () => {
 		debug(`subscribeStatusAll`)
 		for (let identifier of this.devices.keys()) {
@@ -151,16 +171,16 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.subscribeStatus()) {
-				dot.on('status', this.listenerStatus.bind(this,identifier))
+				dot.on('status', this.listenerStatus.bind(this, identifier))
 			}
 		} else {
 			this.emit('error', new Error(`Device status report subscription request for unknown identifier (${identifier})`))
 		}
 	}
 
-	listenerStatus = (identifier,data) => {
-		debug(`${identifier}/listenerStatus`, data)
-		this.emit('status', identifier, data)
+	listenerStatus = (identifier, status) => {
+		debug(`${identifier}/listenerStatus`, status)
+		this.emit('status', identifier, status)
 	}
 
 	unsubscribeStatusAll = async () => {
@@ -194,14 +214,14 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.subscribeBattery()) {
-				dot.on('battery', this.listenerBattery.bind(this,identifier))
+				dot.on('battery', this.listenerBattery.bind(this, identifier))
 			}
 		} else {
 			this.emit('error', new Error(`Battery subscription request for unknown identifier (${identifier})`))
 		}
 	}
 
-	listenerBattery = (identifier,data) => {
+	listenerBattery = (identifier, data) => {
 		debug(`${identifier}/listenerBattery`, data)
 		this.emit('battery', identifier, data)
 	}
@@ -237,14 +257,14 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.subscribeMeasurement(payloadType)) {
-				dot.on('measurement', this.listenerMeasurement.bind(this,identifier))
+				dot.on('measurement', this.listenerMeasurement.bind(this, identifier))
 			}
 		} else {
 			this.emit('error', new Error(`Measurement subscription request for unknown identifier (${identifier})`))
 		}
 	}
 
-	listenerMeasurement = (identifier,data) => {
+	listenerMeasurement = (identifier, data) => {
 		debug(`${identifier}/listenerMeasurement`, data)
 		this.emit('measurement', identifier, data)
 	}

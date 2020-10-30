@@ -64,9 +64,23 @@ class XsensDot extends EventEmitter {
 		const informationCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.information.uuid]
 		const controlCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.control.uuid]
 
-		let data = {}
+		const information = await informationCharacteristic.readAsync()
+		const control = await controlCharacteristic.readAsync()
 
-		debug(`${this.identifier}/queryConfiguration:`,data)
+		const configuration = {
+			firmware: {
+				version: `${information.readInt8(6)}.${information.readInt8(7)}.${information.readInt8(8)}`,
+				date: new Date(
+					`${information.readInt16LE(9)}-${information.readInt8(11)}-${information.readInt8(12)}T${information.readInt8(13)}:${information.readInt8(
+						14
+					)}:${information.readInt8(15)}`
+				).toISOString(),
+			},
+		}
+
+		debug(`${this.identifier}/queryConfiguration:`, configuration)
+
+		return configuration
 	}
 
 	subscribeStatus = async () => {
@@ -87,10 +101,7 @@ class XsensDot extends EventEmitter {
 	}
 
 	listenerStatus = (data) => {
-		const status = {
-			// Current status or command results
-			status: XSENS_DOT_BLE_SPEC.configuration.characteristics.report.status[data.readInt8(0)], // 1 byte
-		}
+		const status = XSENS_DOT_BLE_SPEC.configuration.characteristics.report.status[data.readInt8(0)] // 1 byte
 		debug(`${this.identifier}/listenerStatus`, status)
 		this.emit('status', status)
 	}

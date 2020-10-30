@@ -1,12 +1,12 @@
-import xsensManager from '../index.js'
+import xsensManager, { STATUS_TYPE } from '../index.js'
 
 xsensManager.on('dot', async (identifier) => {
 	await xsensManager.connect(identifier)
 	await xsensManager.subscribeStatus(identifier)
 })
 
-xsensManager.on('status', (identifier, data) => {
-	console.log(`Status (${identifier}) = ${data.status}`)
+xsensManager.on('status', (identifier, status) => {
+	console.log(`Status (${identifier}) = ${status}`)
 })
 
 xsensManager.on('error', (error) => {
