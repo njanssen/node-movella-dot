@@ -4,6 +4,10 @@ import { type } from 'os'
 import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from './constants.js'
 const debug = createDebug('xsens:dot')
 
+Number.prototype.pad = (n = 2) => {
+	return (new Array(n).join('0') + this).slice(-n)
+}
+
 /**
  * Xsens DOT Sensor Class (BLE peripheral)
  */
@@ -70,7 +74,9 @@ class XsensDot extends EventEmitter {
 		const configuration = {
 			firmware: {
 				version: `${information.readInt8(6)}.${information.readInt8(7)}.${information.readInt8(8)}`,
-				date: `${information.readInt16LE(9)}-${information.readInt8(11)}-${information.readInt8(12)} ${information.readInt8(13)}:${information.readInt8(14)}:${information.readInt8(15)}`,
+				date: `${information.readInt16LE(9)}-${information.readInt8(11).pad(2)}-${information.readInt8(12).pad(2)} ${information.readInt8(13).pad(2)}:${information
+					.readInt8(14)
+					.pad(2)}:${information.readInt8(15).pad(2)}`,
 			},
 		}
 
