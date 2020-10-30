@@ -108,7 +108,7 @@ class XsensDot extends EventEmitter {
 	subscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
 		debug(`${this.identifier}/subscribeMeasurement - subscribing.. `)
 
-		if (this.connected) {
+		if (!this.connected) {
 			debug(`${this.identifier}/subscribeMeasurement - Measurement subscription request received while not connected`)
 			return false
 		}
