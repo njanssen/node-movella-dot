@@ -63,7 +63,7 @@ class XsensManager extends EventEmitter {
 		this.central.resetAsync()
 	}
 
-	startScanning = async (duration = 10000) => {
+	startScanning = async (duration = 15000) => {
 		this.central.startScanningAsync([], true)
 		setTimeout(() => {
 			this.central.stopScanning()
