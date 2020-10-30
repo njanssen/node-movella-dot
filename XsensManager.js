@@ -147,13 +147,10 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.subscribeBattery()) {
-				dot.on(
-					'battery',
-					(listenerBattery = (data) => {
-						debug(`${identifier}/listenerBattery`, data)
-						this.emit('battery', identifier, data)
-					})
-				)
+				dot.on('battery', function listenerBattery(data) {
+					debug(`${identifier}/listenerBattery`, data)
+					this.emit('battery', identifier, data)
+				})
 			}
 		} else {
 			this.emit('error', new Error(`Battery subscription request for unknown identifier (${identifier})`))
@@ -191,13 +188,10 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.subscribeMeasurement(payloadType)) {
-				dot.on(
-					'measurement',
-					(listenerMeasurement = (data) => {
-						debug(`${identifier}/listenerMeasurement`, data)
-						this.emit('measurement', identifier, data)
-					})
-				)
+				dot.on('measurement', function listenerMeasurement(data) {
+					debug(`${identifier}/listenerMeasurement`, data)
+					this.emit('measurement', identifier, data)
+				})
 			}
 		} else {
 			this.emit('error', new Error(`Measurement subscription request for unknown identifier (${identifier})`))
