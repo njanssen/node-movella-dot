@@ -69,7 +69,7 @@ class XsensDot extends EventEmitter {
 		const batteryCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.battery.characteristics.battery.uuid]
 		await batteryCharacteristic.subscribeAsync()
 
-		batteryCharacteristic.on('data', this.listenerBattery.bind(batteryCharacteristic))
+		batteryCharacteristic.on('data', this.listenerBattery.bind(this))
 
 		batteryCharacteristic.read()
 
@@ -132,69 +132,71 @@ class XsensDot extends EventEmitter {
 
 		await measurementCharacteristic.subscribeAsync()
 
-		measurementCharacteristic.on('data', function listenerMeasurement(data) {
-			let measurement = {}
-
-			switch (payloadType) {
-				case XSENS_DOT_PAYLOAD_TYPE.extendedQuaternion:
-					measurement = {
-						timestamp: this.readTimestamp(data, 0), // 4 bytes
-						quaternion: this.readQuaternion(data, 4), // 16 bytes
-						freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
-						status: this.readStatus(data, 32), // 2 bytes
-						clipCountAcc: this.readClipCount(data, 34), // 1 byte
-						clipCountGyr: this.readClipCount(data, 35), // 1 byte
-					}
-					break
-				case XSENS_DOT_PAYLOAD_TYPE.completeQuaternion:
-					measurement = {
-						timestamp: this.readTimestamp(data, 0), // 4 bytes
-						quaternion: this.readQuaternion(data, 4), // 16 bytes
-						freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
-					}
-					break
-				case XSENS_DOT_PAYLOAD_TYPE.extendedEuler:
-					measurement = {
-						timestamp: this.readTimestamp(data, 0), // 4 bytes
-						euler: this.readEuler(data, 4), // 12 bytes
-						freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
-						status: this.readStatus(data, 28), // 2 bytes
-						clipCountAcc: this.readClipCount(data, 30), // 1 byte
-						clipCountGyr: this.readClipCount(data, 31), // 1 byte
-					}
-					break
-				case XSENS_DOT_PAYLOAD_TYPE.completeEuler:
-					measurement = {
-						timestamp: this.readTimestamp(data, 0), // 4 bytes
-						euler: this.readEuler(data, 4), // 12 bytes
-						freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
-					}
-					break
-				case XSENS_DOT_PAYLOAD_TYPE.orientationQuaternion:
-					measurement = {
-						timestamp: this.readTimestamp(data, 0), // 4 bytes
-						quaternion: this.readQuaternion(data, 4), // 16 bytes
-					}
-					break
-				case XSENS_DOT_PAYLOAD_TYPE.orientationEuler:
-					measurement = {
-						timestamp: this.readTimestamp(data, 0), // 4 bytes
-						euler: this.readEuler(data, 4), // 12 bytes
-					}
-					break
-				case XSENS_DOT_PAYLOAD_TYPE.freeAcceleration:
-					measurement = {
-						timestamp: this.readTimestamp(data, 0), // 4 bytes
-						freeAcceleration: this.readAcceleration(data, 4), // 12 bytes
-					}
-					break
-			}
-			debug(`${this.identifier}/listenerMeasurement`, measurement)
-			this.emit('measurement', measurement)
-		}.bind(this))
+		measurementCharacteristic.on('data', this.listenerMeasurement.bind(this))
 
 		debug(`${this.identifier}/subscribeMeasurement - subscribed!`)
 		return true
+	}
+
+	listenerMeasurement = (data) => {
+		let measurement = {}
+
+		switch (payloadType) {
+			case XSENS_DOT_PAYLOAD_TYPE.extendedQuaternion:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0), // 4 bytes
+					quaternion: this.readQuaternion(data, 4), // 16 bytes
+					freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
+					status: this.readStatus(data, 32), // 2 bytes
+					clipCountAcc: this.readClipCount(data, 34), // 1 byte
+					clipCountGyr: this.readClipCount(data, 35), // 1 byte
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.completeQuaternion:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0), // 4 bytes
+					quaternion: this.readQuaternion(data, 4), // 16 bytes
+					freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.extendedEuler:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0), // 4 bytes
+					euler: this.readEuler(data, 4), // 12 bytes
+					freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
+					status: this.readStatus(data, 28), // 2 bytes
+					clipCountAcc: this.readClipCount(data, 30), // 1 byte
+					clipCountGyr: this.readClipCount(data, 31), // 1 byte
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.completeEuler:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0), // 4 bytes
+					euler: this.readEuler(data, 4), // 12 bytes
+					freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.orientationQuaternion:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0), // 4 bytes
+					quaternion: this.readQuaternion(data, 4), // 16 bytes
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.orientationEuler:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0), // 4 bytes
+					euler: this.readEuler(data, 4), // 12 bytes
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.freeAcceleration:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0), // 4 bytes
+					freeAcceleration: this.readAcceleration(data, 4), // 12 bytes
+				}
+				break
+		}
+		debug(`${this.identifier}/listenerMeasurement`, measurement)
+		this.emit('measurement', measurement)
 	}
 
 	unsubscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
@@ -217,7 +219,7 @@ class XsensDot extends EventEmitter {
 		await measurementCharacteristic.unsubscribeAsync()
 		debug(`${this.identifier}/unsubscribeMeasurement - unsubscribed!`)
 
-		measurementCharacteristic.removeListener('data', listenerMeasurement)
+		measurementCharacteristic.removeListener('data', this.listenerMeasurement)
 		debug(`${this.identifier}/unsubscribeMeasurement - removed data listener`)
 
 		return true

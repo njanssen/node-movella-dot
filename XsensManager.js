@@ -190,14 +190,16 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.subscribeMeasurement(payloadType)) {
-				dot.on('measurement', function listenerMeasurement(data) {
-					debug(`${identifier}/listenerMeasurement`, data)
-					this.emit('measurement', identifier, data)
-				}.bind(this))
+				dot.on('measurement', this.listenerMeasurement.bind(this,identifier))
 			}
 		} else {
 			this.emit('error', new Error(`Measurement subscription request for unknown identifier (${identifier})`))
 		}
+	}
+
+	listenerMeasurement = (identifier,data) => {
+		debug(`${identifier}/listenerMeasurement`, data)
+		this.emit('measurement', identifier, data)
 	}
 
 	unsubscribeMeasurementAll = async (payloadType) => {
@@ -212,7 +214,7 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			if (await dot.unsubscribeMeasurement(payloadType)) {
-				dot.removeListener('measurement', listenerMeasurement)
+				dot.removeListener('measurement', this.listenerMeasurement)
 			}
 		} else {
 			this.emit('error', new Error(`Measurement unsubscription request for unknown identifier (${identifier})`))
