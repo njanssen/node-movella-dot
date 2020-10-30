@@ -71,6 +71,7 @@ class XsensDot extends EventEmitter {
 		}
 
 		const configuration = {
+			tag: this.readTag(control,8),
 			firmware: {
 				version: `${information.readInt8(6)}.${information.readInt8(7)}.${information.readInt8(8)}`,
 				date: new Date(
@@ -293,6 +294,14 @@ class XsensDot extends EventEmitter {
 		debug(`${this.identifier}/unsubscribeMeasurement - removed data listener`)
 
 		return true
+	}
+
+	readTag = (data, offset) => {
+		const tag = []
+		for (let i = 0; i++; i < 16) {
+			tag.push(String.fromCharCode(data.readUInt8(offset + i)))
+		}
+		return tag.join('')
 	}
 
 	readTimestamp = (data, offset) => {
