@@ -24,6 +24,14 @@ export const XSENS_DOT_PAYLOAD_TYPE = Object.freeze({
 	freeAcceleration: 'freeAcceleration',
 })
 
+export const XSENS_DOT_STATUS_TYPE = Object.freeze({
+	successful : 'successful',
+	powerOff : 'powerOff',
+	deviceBusy : 'deviceBusy',
+	illegalCommand : 'illegalCommand',
+	powerSaving : 'powerSaving'
+})
+
 export const XSENS_DOT_BLE_SPEC = {
 	localName: 'Xsens DOT',
 	configuration: {
@@ -38,8 +46,15 @@ export const XSENS_DOT_BLE_SPEC = {
 				uuid: '15171002494711e98646d663bd873d93',
 			},
 			report: {
-				// Read, Write
+				// Notify
 				uuid: '15171004494711e98646d663bd873d93',
+				status: {
+					0 : 'successful',
+					1 : 'powerOff',
+					2 : 'deviceBusy',
+					3 : 'illegalCommand',
+					4 : 'powerSaving'
+				}
 			},
 		},
 	},

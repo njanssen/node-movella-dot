@@ -58,6 +58,62 @@ class XsensDot extends EventEmitter {
 		await this.peripheral.disconnectAsync()
 	}
 
+	queryConfiguration = async () => {
+		debug(`${this.identifier}/queryConfiguration - querying.. `)
+
+		const informationCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.information.uuid]
+		const controlCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.control.uuid]
+
+		let data = {}
+
+		debug(`${this.identifier}/queryConfiguration:`,data)
+	}
+
+	subscribeStatus = async () => {
+		debug(`${this.identifier}/subscribeStatus - subscribing.. `)
+
+		if (!this.connected) {
+			debug(`${this.identifier}/subscribeStatus - Device status report subscription request received while not connected`)
+			return false
+		}
+
+		const reportCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.report.uuid]
+		await reportCharacteristic.subscribeAsync()
+
+		reportCharacteristic.on('data', this.listenerStatus.bind(this))
+
+		debug(`${this.identifier}/subscribeStatus - subscribed!`)
+		return true
+	}
+
+	listenerStatus = (data) => {
+		const status = {
+			// Current status or command results
+			status: XSENS_DOT_BLE_SPEC.configuration.characteristics.report.status[data.readInt8(0)], // 1 byte
+		}
+		debug(`${this.identifier}/listenerStatus`, status)
+		this.emit('status', status)
+	}
+
+	unsubscribeStatus = async () => {
+		debug(`${this.identifier}/unsubscribeStatus - unsubscribing.. `)
+
+		if (!this.connected) {
+			debug(`${this.identifier}/unsubscribeStatus - Device status unsubscription request received while not connected`)
+			return false
+		}
+
+		const reportCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.report.uuid]
+
+		await reportCharacteristic.unsubscribeAsync()
+		debug(`${this.identifier}/unsubscribeStatus - unsubscribed!`)
+
+		reportCharacteristic.removeListener('data', this.listenerStatus)
+		debug(`${this.identifier}/unsubscribeStatus - removed data listener`)
+
+		return true
+	}
+
 	subscribeBattery = async () => {
 		debug(`${this.identifier}/subscribeBattery - subscribing.. `)
 

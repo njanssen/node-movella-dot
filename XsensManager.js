@@ -74,11 +74,15 @@ class XsensManager extends EventEmitter {
 		this.central.stopScanningAsync()
 	}
 
-	nrOfAvailableDots = () => {
+	get nrOfAvailableDots() {
 		return this.devices.size
 	}
 
-	nrOfConnectedDots = () => {
+	get identifiersOfAvailableDots() {
+		return this.devices.keys()
+	}
+
+	get nrOfConnectedDots() {
 		return Array.from(this.devices.values()).filter((dot) => {
 			return dot.connected
 		}).length
@@ -132,6 +136,49 @@ class XsensManager extends EventEmitter {
 		debug(`disconnectAll`)
 		for (let identifier of this.devices.keys()) {
 			this.disconnect(identifier)
+		}
+	}
+
+	subscribeStatusAll = async () => {
+		debug(`subscribeStatusAll`)
+		for (let identifier of this.devices.keys()) {
+			this.subscribeStatus(identifier)
+		}
+	}
+
+	subscribeStatus = async (identifier) => {
+		debug(`subscribeStatus - ${identifier}`)
+		const dot = this.devices.get(identifier)
+		if (typeof dot !== 'undefined') {
+			if (await dot.subscribeStatus()) {
+				dot.on('status', this.listenerStatus.bind(this,identifier))
+			}
+		} else {
+			this.emit('error', new Error(`Device status report subscription request for unknown identifier (${identifier})`))
+		}
+	}
+
+	listenerStatus = (identifier,data) => {
+		debug(`${identifier}/listenerStatus`, data)
+		this.emit('status', identifier, data)
+	}
+
+	unsubscribeStatusAll = async () => {
+		debug(`unsubscribeStatusAll`)
+		for (let identifier of this.devices.keys()) {
+			await this.unsubscribeStatus(identifier)
+		}
+	}
+
+	unsubscribeStatus = async (identifier) => {
+		debug(`unsubscribeStatus - ${identifier}`)
+		const dot = this.devices.get(identifier)
+		if (typeof dot !== 'undefined') {
+			if (await dot.unsubscribeStatus()) {
+				dot.removeListener('status', this.listenerStatus)
+			}
+		} else {
+			this.emit('error', new Error(`Device status report unsubscription request for unknown identifier (${identifier})`))
 		}
 	}
 

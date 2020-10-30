@@ -1,11 +1,4 @@
-import createDebug from 'debug'
 import xsensManager from '../index.js'
-const debug = createDebug('xsens:example')
-
-xsensManager.on('error', (error) => {
-	debug(error)
-	process.exit(1)
-})
 
 xsensManager.on('dot', async (identifier) => {
 	await xsensManager.connect(identifier)
@@ -17,7 +10,11 @@ xsensManager.on('battery', (identifier, data) => {
 })
 
 process.on('SIGINT', async () => {
-	await xsensManager.unsubscribeBatteryAll()
 	await xsensManager.disconnectAll()
 	process.exit()
+})
+
+xsensManager.on('error', (error) => {
+	console.error(error)
+	process.exit(1)
 })
