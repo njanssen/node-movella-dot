@@ -5,7 +5,7 @@ import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from '.
 const debug = createDebug('xsens:dot')
 
 Number.prototype.pad = (n = 2) => {
-	return (new Array(n).join('0') + this).slice(-n)
+	return ('0' + this).slice(-n)
 }
 
 /**
