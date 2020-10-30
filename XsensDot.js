@@ -69,21 +69,23 @@ class XsensDot extends EventEmitter {
 		const batteryCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.battery.characteristics.battery.uuid]
 		await batteryCharacteristic.subscribeAsync()
 
-		batteryCharacteristic.on('data', function listenerBattery(data) {
-			const battery = {
-				// Battery level (%)
-				level: data.readInt8(0), // 1 byte
-				// Battery charging (boolean)
-				charging: data.readInt8(1) ? true : false, // 1 byte
-			}
-			debug(`${this.identifier}/listenerBattery`, battery)
-			this.emit('battery', battery)
-		}.bind(this))
+		batteryCharacteristic.on('data', this.listenerBattery.bind(batteryCharacteristic))
 
 		batteryCharacteristic.read()
 
 		debug(`${this.identifier}/subscribeBattery - subscribed!`)
 		return true
+	}
+
+	listenerBattery = (data) => {
+		const battery = {
+			// Battery level (%)
+			level: data.readInt8(0), // 1 byte
+			// Battery charging (boolean)
+			charging: data.readInt8(1) ? true : false, // 1 byte
+		}
+		debug(`${this.identifier}/listenerBattery`, battery)
+		this.emit('battery', battery)
 	}
 
 	unsubscribeBattery = async () => {
@@ -99,7 +101,7 @@ class XsensDot extends EventEmitter {
 		await batteryCharacteristic.unsubscribeAsync()
 		debug(`${this.identifier}/unsubscribeBattery - unsubscribed!`)
 
-		batteryCharacteristic.removeListener('data', listenerBattery)
+		batteryCharacteristic.removeListener('data', this.listenerBattery.bind(batteryCharacteristic))
 		debug(`${this.identifier}/unsubscribeBattery - removed data listener`)
 
 		return true
