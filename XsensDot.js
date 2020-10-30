@@ -101,7 +101,7 @@ class XsensDot extends EventEmitter {
 		await batteryCharacteristic.unsubscribeAsync()
 		debug(`${this.identifier}/unsubscribeBattery - unsubscribed!`)
 
-		batteryCharacteristic.removeListener('data', this.listenerBattery.bind(batteryCharacteristic))
+		batteryCharacteristic.removeListener('data', this.listenerBattery)
 		debug(`${this.identifier}/unsubscribeBattery - removed data listener`)
 
 		return true
