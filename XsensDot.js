@@ -70,11 +70,7 @@ class XsensDot extends EventEmitter {
 		const configuration = {
 			firmware: {
 				version: `${information.readInt8(6)}.${information.readInt8(7)}.${information.readInt8(8)}`,
-				date: new Date(
-					`${information.readInt16LE(9)}-${information.readInt8(11)}-${information.readInt8(12)}T${information.readInt8(13)}:${information.readInt8(
-						14
-					)}:${information.readInt8(15)}`
-				).toISOString(),
+				date: `${information.readInt16LE(9)}-${information.readInt8(11)}-${information.readInt8(12)} ${information.readInt8(13)}:${information.readInt8(14)}:${information.readInt8(15)}`,
 			},
 		}
 
