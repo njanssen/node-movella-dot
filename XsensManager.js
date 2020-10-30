@@ -150,7 +150,7 @@ class XsensManager extends EventEmitter {
 				dot.on('battery', function listenerBattery(data) {
 					debug(`${identifier}/listenerBattery`, data)
 					this.emit('battery', identifier, data)
-				})
+				}.bind(this))
 			}
 		} else {
 			this.emit('error', new Error(`Battery subscription request for unknown identifier (${identifier})`))
@@ -191,7 +191,7 @@ class XsensManager extends EventEmitter {
 				dot.on('measurement', function listenerMeasurement(data) {
 					debug(`${identifier}/listenerMeasurement`, data)
 					this.emit('measurement', identifier, data)
-				})
+				}.bind(this))
 			}
 		} else {
 			this.emit('error', new Error(`Measurement subscription request for unknown identifier (${identifier})`))
