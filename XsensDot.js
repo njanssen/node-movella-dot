@@ -299,7 +299,7 @@ class XsensDot extends EventEmitter {
 	readTag = (data, offset) => {
 		const tag = []
 		for (let i = 0; i++; i < 16) {
-			tag.push(String.fromCharCode(data.readUInt8(offset + i)))
+			tag.push(String.fromCharCode(data.readInt8(offset + i)))
 		}
 		return tag.join('')
 	}

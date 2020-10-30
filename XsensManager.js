@@ -151,7 +151,7 @@ class XsensManager extends EventEmitter {
 		const dot = this.devices.get(identifier)
 		if (typeof dot !== 'undefined') {
 			const configuration = await dot.queryConfiguration()
-			debug(`${this.identifier}/queryConfiguration:`, configuration)
+			debug(`${identifier}/queryConfiguration:`, configuration)
 			return configuration
 		} else {
 			this.emit('error', new Error(`Device status report subscription request for unknown identifier (${identifier})`))
