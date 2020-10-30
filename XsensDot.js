@@ -132,13 +132,13 @@ class XsensDot extends EventEmitter {
 
 		await measurementCharacteristic.subscribeAsync()
 
-		measurementCharacteristic.on('data', this.listenerMeasurement.bind(this))
+		measurementCharacteristic.on('data', this.listenerMeasurement.bind(this, payloadType))
 
 		debug(`${this.identifier}/subscribeMeasurement - subscribed!`)
 		return true
 	}
 
-	listenerMeasurement = (data) => {
+	listenerMeasurement = (payloadType, data) => {
 		let measurement = {}
 
 		switch (payloadType) {
@@ -270,7 +270,6 @@ class XsensDot extends EventEmitter {
 		return data.readInt8(offset) // 1 byte
 	}
 
-
 	get connected() {
 		const connected = this.state === PERIPHERAL_STATES.connected && Object.keys(this.characteristics).length > 0
 		debug(`${this.identifier}/connected:`, connected)
@@ -284,7 +283,6 @@ class XsensDot extends EventEmitter {
 	get state() {
 		return this.peripheral.state
 	}
-
 }
 
 export default XsensDot
