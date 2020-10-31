@@ -1,6 +1,5 @@
 import createDebug from 'debug'
 import EventEmitter from 'events'
-import { config } from 'process'
 import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from './constants.js'
 const debug = createDebug('xsens:dot')
 
@@ -17,21 +16,16 @@ class XsensDot extends EventEmitter {
 		this.peripheral = options.peripheral
 		this.characteristics = options.characteristics || {}
 
-		debug('Xsens DOT sensor initialized')
+		debug(`${this.identifier}/XsensDot - initialized new Xsens DOT instance`)
 	}
 
 	connect = async () => {
-		if (this.connected) {
-			debug(`${this.identifier}/connect - already connected!`)
-			return
-		}
-
-		debug(`${this.identifier}/connect - connecting..`)
+		if (this.connected) return
 
 		this.peripheral.removeAllListeners()
 
 		this.peripheral.on('disconnect', async () => {
-			debug(`${this.identifier}/disconnected`)
+			debug(`${this.identifier}/disconnect`)
 			this.emit('disconnected')
 		})
 
@@ -46,23 +40,21 @@ class XsensDot extends EventEmitter {
 			}
 
 			this.configuration = await this.queryConfiguration()
-
 		} catch (error) {
 			debug(`${this.identifier}/connect - Error occured:`, error)
 			this.emit('error', error)
 			return
 		}
 
-		debug(`${this.identifier}/connect - connected!`)
+		debug(`${this.identifier}/connect - connected`)
 	}
 
 	disconnect = async () => {
-		debug(`${this.identifier}/disconnect`)
 		await this.peripheral.disconnectAsync()
 	}
 
 	queryConfiguration = async () => {
-		debug(`${this.identifier}/queryConfiguration - querying.. `)
+		if (!this.connected) return
 
 		const informationCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.information.uuid]
 		const controlCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.control.uuid]
@@ -70,85 +62,65 @@ class XsensDot extends EventEmitter {
 		const information = await informationCharacteristic.readAsync()
 		const control = await controlCharacteristic.readAsync()
 
-		const pad = (n) => {
-			return (n < 10 ? '0' : '') + n
-		}
-
 		const configuration = {
-			tag: this.readTag(control,8),
+			tag: this.readTag(control, 8),
 			firmware: {
-				version: `${information.readInt8(6)}.${information.readInt8(7)}.${information.readInt8(8)}`,
-				date: new Date(
-					`${information.readInt16LE(9)}-${pad(information.readInt8(11))}-${pad(information.readInt8(12))}` +
-						`T` +
-						`${pad(information.readInt8(13))}:${pad(information.readInt8(14))}:${pad(information.readInt8(15))}`
-				),
+				version: readVersion(information, 6),
+				date: readDate(information, 9),
 			},
 		}
 
-		debug(`${this.identifier}/queryConfiguration:`, configuration)
+		debug(`${this.identifier} - queryConfiguration:`, configuration)
 		return configuration
 	}
 
-	subscribeStatus = async () => {
-		debug(`${this.identifier}/subscribeStatus - subscribing.. `)
-
-		if (!this.connected) {
-			debug(`${this.identifier}/subscribeStatus - Device status report subscription request received while not connected`)
-			return false
-		}
+	subscribeStatus = async (notify = true) => {
+		if (!this.connected) return false
 
 		const reportCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.report.uuid]
-		await reportCharacteristic.subscribeAsync()
 
-		reportCharacteristic.on('data', this.listenerStatus.bind(this))
+		if (notify) {
+			await reportCharacteristic.subscribeAsync()
+			reportCharacteristic.on('data', this.listenerStatus.bind(this))
+		} else {
+			await reportCharacteristic.unsubscribeAsync()
+			reportCharacteristic.removeListener('data', this.listenerStatus)
+		}
 
-		debug(`${this.identifier}/subscribeStatus - subscribed!`)
+		debug(`${this.identifier}/subscribeStatus - status notifications ${notify ? 'enabled' : 'disabled'}`)
 		return true
+	}
+
+	unsubscribeStatus = async () => {
+		return await this.subscribeStatus(false)
 	}
 
 	listenerStatus = (data) => {
 		const status = XSENS_DOT_BLE_SPEC.configuration.characteristics.report.status[data.readInt8(0)] // 1 byte
-		debug(`${this.identifier}/listenerStatus`, status)
+		debug(`${this.identifier}/listenerStatus - Status notification:`, status)
 		this.emit('status', status)
 	}
 
-	unsubscribeStatus = async () => {
-		debug(`${this.identifier}/unsubscribeStatus - unsubscribing.. `)
+	subscribeBattery = async (notify = true) => {
+		if (!this.connected) return false
 
-		if (!this.connected) {
-			debug(`${this.identifier}/unsubscribeStatus - Device status unsubscription request received while not connected`)
-			return false
+		const batteryCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.battery.characteristics.battery.uuid]
+
+		if (notify) {
+			await batteryCharacteristic.subscribeAsync()
+			batteryCharacteristic.on('data', this.listenerBattery.bind(this))
+			batteryCharacteristic.read()
+		} else {
+			await batteryCharacteristic.unsubscribeAsync()
+			batteryCharacteristic.removeListener('data', this.listenerBattery)
 		}
 
-		const reportCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.report.uuid]
-
-		await reportCharacteristic.unsubscribeAsync()
-		debug(`${this.identifier}/unsubscribeStatus - unsubscribed!`)
-
-		reportCharacteristic.removeListener('data', this.listenerStatus)
-		debug(`${this.identifier}/unsubscribeStatus - removed data listener`)
-
+		debug(`${this.identifier}/subscribeBattery - battery notifications ${notify ? 'enabled' : 'disabled'}`)
 		return true
 	}
 
-	subscribeBattery = async () => {
-		debug(`${this.identifier}/subscribeBattery - subscribing.. `)
-
-		if (!this.connected) {
-			debug(`${this.identifier}/subscribeBattery - Battery subscription request received while not connected`)
-			return false
-		}
-
-		const batteryCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.battery.characteristics.battery.uuid]
-		await batteryCharacteristic.subscribeAsync()
-
-		batteryCharacteristic.on('data', this.listenerBattery.bind(this))
-
-		batteryCharacteristic.read()
-
-		debug(`${this.identifier}/subscribeBattery - subscribed!`)
-		return true
+	unsubscribeBattery = async () => {
+		return await this.subscribeBattery(false)
 	}
 
 	listenerBattery = (data) => {
@@ -158,36 +130,12 @@ class XsensDot extends EventEmitter {
 			// Battery charging (boolean)
 			charging: data.readInt8(1) ? true : false, // 1 byte
 		}
-		debug(`${this.identifier}/listenerBattery`, battery)
+		debug(`${this.identifier}/listenerBattery - Battery notification:`, battery)
 		this.emit('battery', battery)
 	}
 
-	unsubscribeBattery = async () => {
-		debug(`${this.identifier}/unsubscribeBattery - unsubscribing.. `)
-
-		if (!this.connected) {
-			debug(`${this.identifier}/unsubscribeBattery - Battery unsubscription request received while not connected`)
-			return false
-		}
-
-		const batteryCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.battery.characteristics.battery.uuid]
-
-		await batteryCharacteristic.unsubscribeAsync()
-		debug(`${this.identifier}/unsubscribeBattery - unsubscribed!`)
-
-		batteryCharacteristic.removeListener('data', this.listenerBattery)
-		debug(`${this.identifier}/unsubscribeBattery - removed data listener`)
-
-		return true
-	}
-
-	subscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
-		debug(`${this.identifier}/subscribeMeasurement - subscribing.. `)
-
-		if (!this.connected) {
-			debug(`${this.identifier}/subscribeMeasurement - Measurement subscription request received while not connected`)
-			return false
-		}
+	subscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion, notify = true) => {
+		if (!this.connected) return false
 
 		const service = XSENS_DOT_BLE_SPEC.measurement
 		const control = service.characteristics.control
@@ -195,21 +143,29 @@ class XsensDot extends EventEmitter {
 
 		if (typeof measurement === 'undefined') {
 			this.emit('error', new Error(`Measurement subscription request for unknown payload type (${payloadType})`))
+			return false
 		}
 
 		const controlCharacteristic = this.characteristics[control.uuid]
 		const measurementCharacteristic = this.characteristics[measurement.uuid]
 
-		const buffer = Buffer.from([control.type.measurement, control.action.start, measurement.payload[payloadType]])
+		const message = Buffer.from([control.type.measurement, notify ? control.action.start : control.action.stop, measurement.payload[payloadType]])
+		await controlCharacteristic.writeAsync(message, false)
 
-		await controlCharacteristic.writeAsync(buffer, false)
+		if (notify) {
+			await measurementCharacteristic.subscribeAsync()
+			measurementCharacteristic.on('data', this.listenerMeasurement.bind(this, payloadType))
+		} else {
+			await measurementCharacteristic.unsubscribeAsync()
+			measurementCharacteristic.removeListener('data', this.listenerMeasurement)
+		}
 
-		await measurementCharacteristic.subscribeAsync()
-
-		measurementCharacteristic.on('data', this.listenerMeasurement.bind(this, payloadType))
-
-		debug(`${this.identifier}/subscribeMeasurement - subscribed!`)
+		debug(`${this.identifier}/subscribeMeasurement - measurement notifications ${notify ? 'enabled' : 'disabled'}`)
 		return true
+	}
+
+	unsubscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
+		return await this.subscribeMeasurement(false)
 	}
 
 	listenerMeasurement = (payloadType, data) => {
@@ -218,135 +174,116 @@ class XsensDot extends EventEmitter {
 		switch (payloadType) {
 			case XSENS_DOT_PAYLOAD_TYPE.extendedQuaternion:
 				measurement = {
-					timestamp: this.readTimestamp(data, 0), // 4 bytes
-					quaternion: this.readQuaternion(data, 4), // 16 bytes
-					freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
-					status: this.readStatus(data, 32), // 2 bytes
-					clipCountAcc: this.readClipCount(data, 34), // 1 byte
-					clipCountGyr: this.readClipCount(data, 35), // 1 byte
+					timestamp: this.readTimestamp(data, 0),
+					quaternion: this.readQuaternion(data, 4),
+					freeAcceleration: this.readAcceleration(data, 20),
+					status: this.readStatus(data, 32),
+					clipCountAcc: this.readClipCount(data, 34),
+					clipCountGyr: this.readClipCount(data, 35),
 				}
 				break
 			case XSENS_DOT_PAYLOAD_TYPE.completeQuaternion:
 				measurement = {
-					timestamp: this.readTimestamp(data, 0), // 4 bytes
-					quaternion: this.readQuaternion(data, 4), // 16 bytes
-					freeAcceleration: this.readAcceleration(data, 20), // 12 bytes
+					timestamp: this.readTimestamp(data, 0),
+					quaternion: this.readQuaternion(data, 4),
+					freeAcceleration: this.readAcceleration(data, 20),
 				}
 				break
 			case XSENS_DOT_PAYLOAD_TYPE.extendedEuler:
 				measurement = {
-					timestamp: this.readTimestamp(data, 0), // 4 bytes
-					euler: this.readEuler(data, 4), // 12 bytes
-					freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
-					status: this.readStatus(data, 28), // 2 bytes
-					clipCountAcc: this.readClipCount(data, 30), // 1 byte
-					clipCountGyr: this.readClipCount(data, 31), // 1 byte
+					timestamp: this.readTimestamp(data, 0),
+					euler: this.readEuler(data, 4),
+					freeAcceleration: this.readAcceleration(data, 16),
+					status: this.readStatus(data, 28),
+					clipCountAcc: this.readClipCount(data, 30),
+					clipCountGyr: this.readClipCount(data, 31),
 				}
 				break
 			case XSENS_DOT_PAYLOAD_TYPE.completeEuler:
 				measurement = {
-					timestamp: this.readTimestamp(data, 0), // 4 bytes
-					euler: this.readEuler(data, 4), // 12 bytes
-					freeAcceleration: this.readAcceleration(data, 16), // 12 bytes
+					timestamp: this.readTimestamp(data, 0),
+					euler: this.readEuler(data, 4),
+					freeAcceleration: this.readAcceleration(data, 16),
 				}
 				break
 			case XSENS_DOT_PAYLOAD_TYPE.orientationQuaternion:
 				measurement = {
-					timestamp: this.readTimestamp(data, 0), // 4 bytes
-					quaternion: this.readQuaternion(data, 4), // 16 bytes
+					timestamp: this.readTimestamp(data, 0),
+					quaternion: this.readQuaternion(data, 4),
 				}
 				break
 			case XSENS_DOT_PAYLOAD_TYPE.orientationEuler:
 				measurement = {
-					timestamp: this.readTimestamp(data, 0), // 4 bytes
-					euler: this.readEuler(data, 4), // 12 bytes
+					timestamp: this.readTimestamp(data, 0),
+					euler: this.readEuler(data, 4),
 				}
 				break
 			case XSENS_DOT_PAYLOAD_TYPE.freeAcceleration:
 				measurement = {
-					timestamp: this.readTimestamp(data, 0), // 4 bytes
-					freeAcceleration: this.readAcceleration(data, 4), // 12 bytes
+					timestamp: this.readTimestamp(data, 0),
+					freeAcceleration: this.readAcceleration(data, 4),
 				}
 				break
 		}
-		debug(`${this.identifier}/listenerMeasurement`, measurement)
+		debug(`${this.identifier}/listenerMeasurement - Measurement notification:`, measurement)
 		this.emit('measurement', measurement)
 	}
 
-	unsubscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
-		debug(`${this.identifier}/unsubscribeMeasurement - unsubscribing.. `)
+	readVersion = (data, offset) => {
+		return `${data.readInt8(offset)}.${data.readInt8(offset + 1)}.${data.readInt8(offset + 2)}`
+	}
 
-		if (!this.connected) {
-			debug(`${this.identifier}/unsubscribeMeasurement - Measurement unsubscription request received while not connected`)
-			return false
+	readDate = (data, offset) => {
+		const pad = (n) => {
+			return (n < 10 ? '0' : '') + n
 		}
-
-		const service = XSENS_DOT_BLE_SPEC.measurement
-		const measurement = service.characteristics[service.payloadCharacteristic[payloadType]]
-
-		if (typeof measurement === 'undefined') {
-			this.emit('error', new Error(`Measurement unsubscription request for unknown payload type (${payloadType})`))
-		}
-
-		const measurementCharacteristic = this.characteristics[measurement.uuid]
-
-		await measurementCharacteristic.unsubscribeAsync()
-		debug(`${this.identifier}/unsubscribeMeasurement - unsubscribed!`)
-
-		measurementCharacteristic.removeListener('data', this.listenerMeasurement)
-		debug(`${this.identifier}/unsubscribeMeasurement - removed data listener`)
-
-		return true
+		const date = `${data.readInt16LE(offset)}-${pad(data.readInt8(offset + 2))}-${pad(data.readInt8(offset + 3))}`
+		const time = `${pad(data.readInt8(offset + 4))}:${pad(data.readInt8(offset + 5))}:${pad(data.readInt8(offset + 6))}`
+		return new Date(date + 'T' + time)
 	}
 
 	readTag = (data, offset) => {
-		const bytes = data.slice(offset,offset+16)
-		return bytes.toString('utf8',0,bytes.indexOf('\x00'))
+		const bytes = data.slice(offset, offset + 16)
+		return bytes.toString('utf8', 0, bytes.indexOf('\x00'))
 	}
 
 	readTimestamp = (data, offset) => {
-		// Timestamp (ms)
 		return data.readUInt32LE(offset)
 	}
 
 	readQuaternion = (data, offset) => {
-		// Quaternion (-)
 		return {
-			w: data.readFloatLE(offset), // 4 bytes
-			x: data.readFloatLE(offset + 4), // 4 bytes
-			y: data.readFloatLE(offset + 8), // 4 bytes
-			z: data.readFloatLE(offset + 12), // 4 bytes
+			w: data.readFloatLE(offset),
+			x: data.readFloatLE(offset + 4),
+			y: data.readFloatLE(offset + 8),
+			z: data.readFloatLE(offset + 12),
 		}
 	}
 
 	readEuler = (data, offset) => {
-		// Euler (degree)
 		return {
-			x: data.readFloatLE(offset), // 4 bytes
-			y: data.readFloatLE(offset + 4), // 4 bytes
-			z: data.readFloatLE(offset + 8), // 4 bytes
+			x: data.readFloatLE(offset),
+			y: data.readFloatLE(offset + 4),
+			z: data.readFloatLE(offset + 8),
 		}
 	}
 
 	readAcceleration = (data, offset) => {
-		// Free acceleration (m/s^2)
 		return {
-			x: data.readFloatLE(offset), // 4 bytes
-			y: data.readFloatLE(offset + 4), // 4 bytes
-			z: data.readFloatLE(offset + 8), // 4 bytes
+			x: data.readFloatLE(offset),
+			y: data.readFloatLE(offset + 4),
+			z: data.readFloatLE(offset + 8),
 		}
 	}
 
 	readStatus = (data, offset) => {
-		// Status
-		let status = data.readInt16LE(offset) // 2 bytes
+		let status = data.readInt16LE(offset)
 		status = (status & 0x1ff) << 8
 		return status
 	}
 
 	readClipCount = (data, offset) => {
-		// Clip count
-		return data.readInt8(offset) // 1 byte
+		return data.readInt8(offset)
 	}
 
 	get connected() {
