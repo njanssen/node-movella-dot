@@ -127,7 +127,7 @@ class XsensManager extends EventEmitter {
 
 	subscribeStatus = async (identifier, notify = true) => {
 		const dot = this.getDevice(identifier)
-		if (notify()) {
+		if (notify) {
 			if (await dot.subscribeStatus()) {
 				dot.on('status', this.listenerStatus.bind(this, identifier))
 			}
