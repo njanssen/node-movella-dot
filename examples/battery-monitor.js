@@ -1,8 +1,12 @@
 import xsensManager from '../index.js'
 
 xsensManager.on('dot', async (identifier) => {
-	await xsensManager.connect(identifier)
-	await xsensManager.subscribeBattery(identifier)
+	try {
+		await xsensManager.connect(identifier)
+		await xsensManager.subscribeBattery(identifier)
+	} catch (error) {
+		console.error('Exception raised while connecting to Xsens DOT: ', error)
+	}
 })
 
 xsensManager.on('battery', (identifier, data) => {
@@ -12,9 +16,4 @@ xsensManager.on('battery', (identifier, data) => {
 process.on('SIGINT', async () => {
 	await xsensManager.disconnectAll()
 	process.exit()
-})
-
-xsensManager.on('error', (error) => {
-	console.error(error)
-	process.exit(1)
 })

@@ -29,22 +29,16 @@ class XsensDot extends EventEmitter {
 			this.emit('disconnect')
 		})
 
-		try {
-			await this.peripheral.connectAsync()
+		await this.peripheral.connectAsync()
 
-			const { services, characteristics } = await this.peripheral.discoverAllServicesAndCharacteristicsAsync()
+		const { services, characteristics } = await this.peripheral.discoverAllServicesAndCharacteristicsAsync()
 
-			this.characteristics = {}
-			for (const characteristic of characteristics) {
-				this.characteristics[characteristic.uuid] = characteristic
-			}
-
-			this.configuration = await this.queryConfiguration()
-		} catch (error) {
-			debug(`${this.identifier}/connect - Error occured:`, error)
-			this.emit('error', error)
-			return
+		this.characteristics = {}
+		for (const characteristic of characteristics) {
+			this.characteristics[characteristic.uuid] = characteristic
 		}
+
+		this.configuration = await this.queryConfiguration()
 
 		debug(`${this.identifier}/connect - connected`)
 	}
@@ -97,7 +91,7 @@ class XsensDot extends EventEmitter {
 
 	listenerStatus = (data) => {
 		const status = XSENS_DOT_BLE_SPEC.configuration.characteristics.report.status[data.readInt8(0)] // 1 byte
-		debug(`${this.identifier}/listenerStatus - Status notification:`, status)
+		debug(`${this.identifier}/listenerStatus - status notification:`, status)
 		this.emit('status', status)
 	}
 
@@ -130,7 +124,7 @@ class XsensDot extends EventEmitter {
 			// Battery charging (boolean)
 			charging: data.readInt8(1) ? true : false, // 1 byte
 		}
-		debug(`${this.identifier}/listenerBattery - Battery notification:`, battery)
+		debug(`${this.identifier}/listenerBattery - battery notification:`, battery)
 		this.emit('battery', battery)
 	}
 
@@ -142,8 +136,7 @@ class XsensDot extends EventEmitter {
 		const measurement = service.characteristics[service.payloadCharacteristic[payloadType]]
 
 		if (typeof measurement === 'undefined') {
-			this.emit('error', new Error(`Measurement subscription request for unknown payload type (${payloadType})`))
-			return false
+			throw new Error(`Measurement subscription request for unknown payload type (${payloadType})`)
 		}
 
 		const controlCharacteristic = this.characteristics[control.uuid]
@@ -225,7 +218,7 @@ class XsensDot extends EventEmitter {
 				}
 				break
 		}
-		debug(`${this.identifier}/listenerMeasurement - Measurement notification:`, measurement)
+		debug(`${this.identifier}/listenerMeasurement - measurement notification:`, measurement)
 		this.emit('measurement', measurement)
 	}
 

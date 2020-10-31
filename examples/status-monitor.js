@@ -1,17 +1,23 @@
 import xsensManager, { STATUS_TYPE } from '../index.js'
 
 xsensManager.on('dot', async (identifier) => {
-	await xsensManager.connect(identifier)
-	await xsensManager.subscribeStatus(identifier)
+	try {
+		await xsensManager.connect(identifier)
+		await xsensManager.subscribeStatus(identifier)
+	} catch (error) {
+		console.error('Exception raised while connecting to Xsens DOT: ', error)
+	}
 })
 
 xsensManager.on('status', (identifier, status) => {
-	console.log(`Status (${identifier}) = ${status}`)
-})
-
-xsensManager.on('error', (error) => {
-	console.error(error)
-	process.exit(1)
+	switch (status) {
+		case STATUS_TYPE.powerOff:
+		case STATUS_TYPE.powerSaving:
+		case STATUS_TYPE.successful:
+		case STATUS_TYPE.deviceBusy:
+		case STATUS_TYPE.illegalCommand:
+			console.log(`Status (${identifier}) = ${status}`)
+	}
 })
 
 process.on('SIGINT', async () => {
