@@ -1,7 +1,7 @@
 import createDebug from 'debug'
 import EventEmitter from 'events'
 import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from './constants.js'
-const debug = createDebug('xsens:dot')
+const debug = createDebug('xsens-dot:dot')
 
 /**
  * Xsens DOT Sensor Class (BLE peripheral)
@@ -26,7 +26,7 @@ class XsensDot extends EventEmitter {
 
 		this.peripheral.on('disconnect', async () => {
 			debug(`${this.identifier}/disconnect`)
-			this.emit('disconnected')
+			this.emit('disconnect')
 		})
 
 		try {

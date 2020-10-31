@@ -5,7 +5,7 @@ import Dot from './XsensDot.js'
 import { v4 as uuidv4 } from 'uuid'
 import { BLE_STATES, XSENS_DOT_BLE_SPEC } from './constants.js'
 
-const debug = createDebug('xsens:manager')
+const debug = createDebug('xsens-dot:manager')
 
 /**
  * Xsens DOT Manager Class (BLE central)
@@ -27,7 +27,7 @@ class XsensManager extends EventEmitter {
 				case BLE_STATES.unsupported:
 				case BLE_STATES.unknown:
 				case BLE_STATES.unauthorized:
-					this.emit('error', new Error(`BLE adapter not available (${state})`))
+					this.emit('error', new Error(`No BLE adapter available (${state})`))
 					break
 			}
 		})
@@ -43,11 +43,11 @@ class XsensManager extends EventEmitter {
 		this.central.on('discover', async (peripheral) => {
 			if (peripheral.advertisement.localName === XSENS_DOT_BLE_SPEC.localName && typeof peripheral.identifier === 'undefined') {
 				const identifier = uuidv4()
-				debug(`central/discover - discovered new DOT (${identifier})`)
 				peripheral.identifier = identifier
 				const dot = new Dot(identifier, { peripheral: peripheral })
 				this.devices.set(identifier, dot)
 
+				debug(`central/discover - discovered new DOT (${identifier})`)
 				this.emit('dot', identifier)
 			}
 		})
@@ -56,15 +56,16 @@ class XsensManager extends EventEmitter {
 			debug('central/warning:', message)
 		})
 
-		debug('Xsens DOT manager initialized')
+		debug('XsensDotManager - initialized Xsens DOT manager instance')
 	}
 
 	reset = async () => {
-		this.central.resetAsync()
+		await this.central.resetAsync()
 	}
 
 	startScanning = async (duration = 15000) => {
 		this.central.startScanningAsync([], true)
+
 		setTimeout(() => {
 			this.central.stopScanning()
 		}, duration)
@@ -74,101 +75,68 @@ class XsensManager extends EventEmitter {
 		this.central.stopScanningAsync()
 	}
 
-	get nrOfAvailableDots() {
-		return this.devices.size
-	}
-
-	get identifiersOfAvailableDots() {
-		return this.devices.keys()
-	}
-
-	get nrOfConnectedDots() {
-		return Array.from(this.devices.values()).filter((dot) => {
-			return dot.connected
-		}).length
-	}
-
-	connect = async (identifier) => {
-		debug(`connect - ${identifier}`)
-		const dot = this.devices.get(identifier)
-		if (typeof dot !== 'undefined') {
-			if (!dot.connected) {
-				dot.removeAllListeners()
-
-				dot.on('disconnected', () => {
-					debug(`${identifier}/disconnected`)
-					dot.removeAllListeners()
-				})
-
-				dot.on('error', (error) => {
-					debug(`${identifier}/error - Error occured:`, error)
-					this.emit('error', error)
-				})
-
-				await dot.connect()
-			}
-		} else {
-			this.emit('error', new Error(`Connection request for unknown identifier (${identifier})`))
-		}
-	}
-
 	connectAll = async () => {
-		debug(`connectAll`)
 		for (let identifier of this.devices.keys()) {
 			await this.connect(identifier)
 		}
 	}
 
-	disconnect = async (identifier) => {
-		debug(`disconnect - ${identifier}`)
-		const dot = this.devices.get(identifier)
-		if (typeof dot !== 'undefined') {
-			if (dot.connecting || dot.connected) {
-				await dot.disconnect()
+	connect = async (identifier) => {
+		const dot = this.getDevice(identifier)
+		if (!dot.connected) {
+			dot.on('disconnect', () => {
+				debug(`${identifier}/disconnect`)
 				dot.removeAllListeners()
-			}
-		} else {
-			this.emit('error', new Error(`Disconnecting request for unknown identifier (${identifier})`))
+				// TODO Remove dot instance from list of available devices
+			})
+
+			dot.on('error', (error) => {
+				debug(`${identifier}/error - Error occured:`, error)
+				this.emit('error', error)
+			})
+
+			await dot.connect()
+			debug(`${identifier}/connect - connected`)
 		}
 	}
 
 	disconnectAll = async () => {
-		debug(`disconnectAll`)
 		for (let identifier of this.devices.keys()) {
 			this.disconnect(identifier)
 		}
 	}
 
-	configuration = (identifier) => {
-		debug(`configuration - ${identifier}`)
-		const dot = this.devices.get(identifier)
-		if (typeof dot !== 'undefined') {
-			const configuration = dot.configuration
-			debug(`${identifier}/configuration:`, configuration)
-			return configuration
-		} else {
-			this.emit('error', new Error(`Get configuration request for unknown identifier (${identifier})`))
-			return
+	disconnect = async (identifier) => {
+		const dot = this.getDevice(identifier)
+		if (dot.connecting || dot.connected) {
+			await dot.disconnect()
+			dot.removeAllListeners()
+			debug(`${identifier}/disconnect - disconnected`)
 		}
 	}
 
+	configuration = (identifier) => {
+		return this.getDevice(identifier).configuration
+	}
+
 	subscribeStatusAll = async () => {
-		debug(`subscribeStatusAll`)
 		for (let identifier of this.devices.keys()) {
 			this.subscribeStatus(identifier)
 		}
 	}
 
-	subscribeStatus = async (identifier) => {
-		debug(`subscribeStatus - ${identifier}`)
-		const dot = this.devices.get(identifier)
-		if (typeof dot !== 'undefined') {
+	subscribeStatus = async (identifier, notify = true) => {
+		const dot = this.getDevice(identifier)
+		if (notify()) {
 			if (await dot.subscribeStatus()) {
 				dot.on('status', this.listenerStatus.bind(this, identifier))
 			}
 		} else {
-			this.emit('error', new Error(`Device status report subscription request for unknown identifier (${identifier})`))
+			if (await dot.unsubscribeStatus()) {
+				dot.removeListener('status', this.listenerStatus)
+			}
 		}
+		debug(`${identifier}/subscribeStatus - status notifications ${notify ? 'enabled' : 'disabled'}`)
 	}
 
 	listenerStatus = (identifier, status) => {
@@ -177,22 +145,13 @@ class XsensManager extends EventEmitter {
 	}
 
 	unsubscribeStatusAll = async () => {
-		debug(`unsubscribeStatusAll`)
 		for (let identifier of this.devices.keys()) {
-			await this.unsubscribeStatus(identifier)
+			await this.subscribeStatus(identifier, false)
 		}
 	}
 
 	unsubscribeStatus = async (identifier) => {
-		debug(`unsubscribeStatus - ${identifier}`)
-		const dot = this.devices.get(identifier)
-		if (typeof dot !== 'undefined') {
-			if (await dot.unsubscribeStatus()) {
-				dot.removeListener('status', this.listenerStatus)
-			}
-		} else {
-			this.emit('error', new Error(`Device status report unsubscription request for unknown identifier (${identifier})`))
-		}
+		return await subscribeStatus(identifier, false)
 	}
 
 	subscribeBatteryAll = async () => {
@@ -279,6 +238,28 @@ class XsensManager extends EventEmitter {
 		} else {
 			this.emit('error', new Error(`Measurement unsubscription request for unknown identifier (${identifier})`))
 		}
+	}
+
+	getDevice = (identifier) => {
+		const dot = this.devices.get(identifier)
+		if (typeof dot === 'undefined') {
+			throw new Error(`Device request for unknown identifier (${identifier})`)
+		}
+		return dot
+	}
+
+	get nrOfAvailableDots() {
+		return this.devices.size
+	}
+
+	get identifiersOfAvailableDots() {
+		return this.devices.keys()
+	}
+
+	get nrOfConnectedDots() {
+		return Array.from(this.devices.values()).filter((dot) => {
+			return dot.connected
+		}).length
 	}
 }
 
