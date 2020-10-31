@@ -65,8 +65,8 @@ class XsensDot extends EventEmitter {
 		const configuration = {
 			tag: this.readTag(control, 8),
 			firmware: {
-				version: readVersion(information, 6),
-				date: readDate(information, 9),
+				version: this.readVersion(information, 6),
+				date: this.readDate(information, 9),
 			},
 		}
 
