@@ -1,6 +1,6 @@
 import createDebug from 'debug'
 import EventEmitter from 'events'
-import { PERIPHERAL_STATES, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from './constants.js'
+import { PERIPHERAL_STATE, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from './constants.js'
 const debug = createDebug('xsens-dot:dot')
 
 /**
@@ -31,7 +31,7 @@ class XsensDot extends EventEmitter {
 
 		await this.peripheral.connectAsync()
 
-		const { services, characteristics } = await this.peripheral.discoverAllServicesAndCharacteristicsAsync()
+		const { characteristics } = await this.peripheral.discoverAllServicesAndCharacteristicsAsync()
 
 		this.characteristics = {}
 		for (const characteristic of characteristics) {
@@ -157,8 +157,8 @@ class XsensDot extends EventEmitter {
 		return true
 	}
 
-	unsubscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion) => {
-		return await this.subscribeMeasurement(false)
+	unsubscribeMeasurement = async (payloadType) => {
+		return await this.subscribeMeasurement(payloadType, false)
 	}
 
 	listenerMeasurement = (payloadType, data) => {
@@ -280,12 +280,12 @@ class XsensDot extends EventEmitter {
 	}
 
 	get connected() {
-		const connected = this.state === PERIPHERAL_STATES.connected && Object.keys(this.characteristics).length > 0
+		const connected = this.state === PERIPHERAL_STATE.connected && Object.keys(this.characteristics).length > 0
 		return connected
 	}
 
 	get connecting() {
-		return this.state === PERIPHERAL_STATES.connecting
+		return this.state === PERIPHERAL_STATE.connecting
 	}
 
 	get state() {

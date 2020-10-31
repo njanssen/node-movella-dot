@@ -1,4 +1,4 @@
-export const BLE_STATES = {
+export const BLE_STATE = {
 	poweredOn: 'poweredOn',
 	poweredOff: 'poweredOff',
 	resetting: 'resetting',
@@ -7,7 +7,7 @@ export const BLE_STATES = {
 	unauthorized: 'unauthorized',
 }
 
-export const PERIPHERAL_STATES = {
+export const PERIPHERAL_STATE = {
 	connected: 'connected',
 	connecting: 'connecting',
 	disconnected: 'disconnected',

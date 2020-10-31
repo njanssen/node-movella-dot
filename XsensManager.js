@@ -3,7 +3,7 @@ import noble from '@abandonware/noble'
 import EventEmitter from 'events'
 import Dot from './XsensDot.js'
 import { v4 as uuidv4 } from 'uuid'
-import { BLE_STATES, XSENS_DOT_BLE_SPEC } from './constants.js'
+import { BLE_STATE, XSENS_DOT_BLE_SPEC } from './constants.js'
 
 const debug = createDebug('xsens-dot:manager')
 
@@ -19,14 +19,14 @@ class XsensManager extends EventEmitter {
 		this.central.on('stateChange', (state) => {
 			debug('central/stateChange:', state)
 			switch (state) {
-				case BLE_STATES.poweredOn:
+				case BLE_STATE.poweredOn:
 					this.startScanning()
 					break
-				case BLE_STATES.poweredOff:
-				case BLE_STATES.resetting:
-				case BLE_STATES.unsupported:
-				case BLE_STATES.unknown:
-				case BLE_STATES.unauthorized:
+				case BLE_STATE.poweredOff:
+				case BLE_STATE.resetting:
+				case BLE_STATE.unsupported:
+				case BLE_STATE.unknown:
+				case BLE_STATE.unauthorized:
 					debug(`central/stateChange: no BLE adapter available (${state})`)
 					break
 			}
@@ -205,7 +205,7 @@ class XsensManager extends EventEmitter {
 	}
 
 	unsubscribeMeasurementAll = async (payloadType) => {
-		await this.subscribeMeasurementAll(identifier, payloadType, false)
+		await this.subscribeMeasurementAll(payloadType, false)
 	}
 
 	unsubscribeMeasurement = async (identifier, payloadType) => {
