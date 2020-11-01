@@ -49,7 +49,7 @@ xsensManager.on('dot', async (identifier) => {
 
 A singleton instance of the Xsens DOT Manager class is provided as the default export of this library. The following event is emitted when the manager discovers a new Xsens DOT sensor:
 
-- **`dot`** - the `identifier` argument contains the UUID used by the manager to identify the device. This would be a good moment to connect to the sensor, read sensor configuration data, and subscribe your application to measurement notifications.
+- `dot` - the `identifier` argument contains the UUID used by the manager to identify the device. This would be a good moment to connect to the sensor, read sensor configuration data, and subscribe your application to measurement notifications.
 
 On instantiation during the first import, the manager will automatically try to discover Xsens DOT devices for 15 seconds. To start scanning for devices a moment later in time, use the following function:
 
@@ -80,7 +80,7 @@ xsensManager.on('measurement', (identifier, data) => {
 
 The following event is emitted for each measurement notification received from an Xsens DOT sensor:
 
-- **`measurement`** - the `identifier` argument contains the UUID of the device that sent the notification, and the `data` argument contains a Javascript object with the measurement payload.
+- `measurement` - the `identifier` argument contains the UUID of the device that sent the notification, and the `data` argument contains a Javascript object with the measurement payload.
 
 An example measurement payload:
 
@@ -143,7 +143,7 @@ xsensManager.on('battery', (identifier, data) => {
 
 The following event is emitted for each battery notification received from an Xsens DOT sensor:
 
-- **`battery`** - the `identifier` argument contains the UUID of the device that sent the notification, and the `data` argument contains a Javascript object with the battery level information:
+- `battery` - the `identifier` argument contains the UUID of the device that sent the notification, and the `data` argument contains a Javascript object with the battery level information:
 
 ```javascript
 {
@@ -169,7 +169,7 @@ xsensManager.on('status', (identifier, status) => {
 
 The following event is emitted for each battery notification received from an Xsens DOT sensor:
 
-- **`status`** - the `identifier` argument contains the UUID of the device that sent the notification, and the `data` argument contains one of the values (e.g. `powerOff`) of the constant `STATUS_TYPE` exported by the library.
+- `status` - the `identifier` argument contains the UUID of the device that sent the notification, and the `data` argument contains one of the values (e.g. `powerOff`) of the constant `STATUS_TYPE` exported by the library.
 
 ## Reading sensor configuration
 
