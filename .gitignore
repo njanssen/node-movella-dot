@@ -107,3 +107,7 @@ dist
 .vscode/
 
 json/
+
+# Yarn/npm lock files
+yarn.lock
+package-lock.json
