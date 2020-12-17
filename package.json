@@ -28,10 +28,10 @@
   "homepage": "https://github.com/njanssen/node-xsens-dot#readme",
   "dependencies": {
     "@abandonware/noble": "^1.9.2-10",
-    "debug": "^4.2.0",
-    "uuid": "^8.3.1"
+    "debug": "^4.3.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "prettier": "^2.1.2"
+    "prettier": "^2.2.1"
   }
 }
