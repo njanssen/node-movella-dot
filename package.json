@@ -20,7 +20,7 @@
     "sensors",
     "imu"
   ],
-  "author": "Niels Janssen",
+  "author": "Vliegwerk ❯ Niels Janssen",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/njanssen/node-xsens-dot/issues"

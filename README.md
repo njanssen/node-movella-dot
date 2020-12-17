@@ -19,7 +19,7 @@ This library is packaged as an [ECMAScript (ES) module](https://nodejs.org/api/e
 
 For Bluetooth connectivity, this library depends on the [@abandonware/noble](https://www.npmjs.com/package/@abandonware/noble) npm package. The installation prerequisites for using this package can be found [here](https://www.npmjs.com/package/@abandonware/noble#installation).
 
-**Known issue**: On macOS, you might run into the issue that your Mac is unable to connect with your Xsens DOT sensors. For more details, see [my reported issue on Xsens' GitHub](https://github.com/xsens/xsens_dot_server/issues/16).
+**Known issue**: On macOS, you might run into the issue that your Mac is unable to connect with Xsens DOT sensors with a firmware version earlier than 1.6.0. Make sure to update your firmware to the latest version with the Xsens DOT app to resolve this problem.
 
 ## Installation
 
@@ -209,7 +209,7 @@ DEBUG='xsens-dot:*,noble' node examples/battery-monitor.js
 ## Extras
 
 - This library is developed and published by [me](https://www.vliegwerk.com) and isn't sponsored or owned by Xsens.
-- Make sure to also check out the [Xsens DOT server](https://github.com/njanssen/xsens_dot_server) which is a Node.js application developed by Xsens which also supports heading reset, clock synchronization, and offline measurement recording.
+- Make sure to also check out the [Xsens DOT server](https://github.com/xsens/xsens_dot_server) which is a Node.js application developed by Xsens which also supports heading reset, clock synchronization, and offline measurement recording.
 - More information about the Xsens DOT can be found in the [Xsens DOT User Manual](https://www.xsens.com/hubfs/Downloads/Manuals/Xsens%20DOT%20User%20Manual.pdf) and on the [Xsens Base Forum](https://base.xsens.com/hc/en-us/categories/360002285079-Wearable-Sensors-Platform).
 - See the [License](LICENSE) file for license rights and limitations (MIT).
 - Pull Requests are welcome!
