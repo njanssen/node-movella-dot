@@ -167,7 +167,7 @@ xsensManager.on('status', (identifier, status) => {
 })
 ```
 
-The following event is emitted for each battery notification received from an Xsens DOT sensor:
+The following event is emitted for each device status report received from an Xsens DOT sensor:
 
 - `status` - the `identifier` argument contains the UUID of the device that sent the notification, and the `data` argument contains one of the values (e.g. `powerOff`) of the constant `STATUS_TYPE` exported by the library.
 
