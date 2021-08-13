@@ -60,14 +60,14 @@ class XsensDot extends EventEmitter {
 			tag: this.readTag(control, 8),
 			output_rate: this.readOutputRate(control, 24),
 			filter_index: this.readFilterIndex(control, 26),
+			address: this.readAddress(information, 0),
 			firmware: {
 				version: this.readVersion(information, 6),
 				date: this.readDate(information, 9),
 			},
-			
 			softdevice_version: this.readSoftdeviceVersion(information, 16),
 			serial: this.readSerialNumber(information, 20),
-			product_code: this.readProductCode(information, 28),			
+			product_code: this.readProductCode(information, 28),
 		}
 
 		debug(`${this.identifier} - queryConfiguration:`, configuration)
@@ -228,8 +228,19 @@ class XsensDot extends EventEmitter {
 		this.emit('measurement', measurement)
 	}
 
+	readAddress = (data, offset) => {
+		const pad = (n) => {
+			return (n.length < 2 ? '0' : '') + n
+		}
+		const address = new Array(6)
+		for (let i = 0; i < address.length; i++) {
+			address[i] = pad(data.readUInt8(offset + i).toString(16))
+		}
+		return address.reverse().join(':')
+	}
+
 	readVersion = (data, offset) => {
-		return `${data.readInt8(offset)}.${data.readInt8(offset + 1)}.${data.readInt8(offset + 2)}`
+		return `${data.readUInt8(offset)}.${data.readUInt8(offset + 1)}.${data.readUInt8(offset + 2)}`
 	}
 
 	readDate = (data, offset) => {
@@ -246,12 +257,12 @@ class XsensDot extends EventEmitter {
 	}
 
 	readSerialNumber = (data, offset) => {
-		return `${data.readBigUInt64LE(offset)}`
+		return `${data.readBigUInt64LE(offset).toString(16)}`
 	}
 
 	readProductCode = (data, offset) => {
 		const bytes = data.slice(offset, offset + 6)
-		return bytes.toString('utf8', 0, 6)		
+		return bytes.toString('utf8', 0, 6)
 	}
 
 	readTag = (data, offset) => {
