@@ -30,6 +30,7 @@ export const XSENS_DOT_STATUS_TYPE = Object.freeze({
 	deviceBusy: 'deviceBusy',
 	illegalCommand: 'illegalCommand',
 	powerSaving: 'powerSaving',
+	buttonCallback: 'buttonCallback'
 })
 
 export const XSENS_DOT_BLE_SPEC = {
@@ -54,6 +55,7 @@ export const XSENS_DOT_BLE_SPEC = {
 					2: 'deviceBusy',
 					3: 'illegalCommand',
 					4: 'powerSaving',
+					5: 'buttonCallback',
 				},
 			},
 		},

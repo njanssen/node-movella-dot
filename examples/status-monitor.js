@@ -15,7 +15,8 @@ xsensManager.on('status', (identifier, status) => {
 		case STATUS_TYPE.powerSaving:
 		case STATUS_TYPE.successful:
 		case STATUS_TYPE.deviceBusy:
-		case STATUS_TYPE.illegalCommand:
+		case STATUS_TYPE.buttonCallback:
+			case STATUS_TYPE.illegalCommand:
 			console.log(`Status (${identifier}) = ${status}`)
 	}
 })
