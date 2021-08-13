@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/njanssen/node-xsens-dot#readme",
   "dependencies": {
-    "@abandonware/noble": "^1.9.2-10",
+    "@abandonware/noble": "^1.9.2-14",
     "debug": "^4.3.1",
     "uuid": "^8.3.2"
   },

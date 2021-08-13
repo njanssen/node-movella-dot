@@ -58,10 +58,16 @@ class XsensDot extends EventEmitter {
 
 		const configuration = {
 			tag: this.readTag(control, 8),
+			output_rate: this.readOutputRate(control, 24),
+			filter_index: this.readFilterIndex(control, 26),
 			firmware: {
 				version: this.readVersion(information, 6),
 				date: this.readDate(information, 9),
 			},
+			
+			softdevice_version: this.readSoftdeviceVersion(information, 16),
+			serial: this.readSerialNumber(information, 20),
+			product_code: this.readProductCode(information, 28),			
 		}
 
 		debug(`${this.identifier} - queryConfiguration:`, configuration)
@@ -235,9 +241,30 @@ class XsensDot extends EventEmitter {
 		return new Date(date + 'T' + time)
 	}
 
+	readSoftdeviceVersion = (data, offset) => {
+		return `${data.readUInt32LE(offset)}`
+	}
+
+	readSerialNumber = (data, offset) => {
+		return `${data.readBigUInt64LE(offset)}`
+	}
+
+	readProductCode = (data, offset) => {
+		const bytes = data.slice(offset, offset + 6)
+		return bytes.toString('utf8', 0, 6)		
+	}
+
 	readTag = (data, offset) => {
 		const bytes = data.slice(offset, offset + 16)
 		return bytes.toString('utf8', 0, bytes.indexOf('\x00'))
+	}
+
+	readOutputRate = (data, offset) => {
+		return `${data.readInt8(offset)}`
+	}
+
+	readFilterIndex = (data, offset) => {
+		return `${data.readUInt8(offset)}`
 	}
 
 	readTimestamp = (data, offset) => {

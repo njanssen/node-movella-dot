@@ -210,6 +210,6 @@ DEBUG='xsens-dot:*,noble' node examples/battery-monitor.js
 
 - This library is developed and published by [me](https://www.vliegwerk.com) and isn't sponsored or owned by Xsens.
 - Make sure to also check out the [Xsens DOT server](https://github.com/xsens/xsens_dot_server) which is a Node.js application developed by Xsens which also supports heading reset, clock synchronization, and offline measurement recording.
-- More information about the Xsens DOT can be found in the [Xsens DOT User Manual](https://www.xsens.com/hubfs/Downloads/Manuals/Xsens%20DOT%20User%20Manual.pdf) and on the [Xsens Base Forum](https://base.xsens.com/hc/en-us/categories/360002285079-Wearable-Sensors-Platform).
+- More information about the Xsens DOT can be found in the [Xsens DOT User Manual](https://www.xsens.com/hubfs/Downloads/Manuals/Xsens%20DOT%20User%20Manual.pdf), [Xsens DOT BLE Services Specifications](https://www.xsens.com/hubfs/Downloads/Manuals/Xsens DOT BLE Services Specifications.pdf), and on the [Xsens Base Forum](https://base.xsens.com/hc/en-us/categories/360002285079-Wearable-Sensors-Platform).
 - See the [License](LICENSE) file for license rights and limitations (MIT).
 - Pull Requests are welcome!
