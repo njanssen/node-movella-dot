@@ -97,8 +97,12 @@ class XsensDot extends EventEmitter {
 
 	listenerStatus = (data) => {
 		const status = XSENS_DOT_BLE_SPEC.configuration.characteristics.report.status[data.readInt8(0)] // 1 byte
-		debug(`${this.identifier}/listenerStatus - status notification:`, status)
-		this.emit('status', status)
+		let timestamp
+		if (status === 'buttonCallback') {
+			timestamp = this.readTimestamp(data, 2)
+		}
+		debug(`${this.identifier}/listenerStatus - status notification:`, status, timestamp)
+		this.emit('status', status, (timestamp = null))
 	}
 
 	subscribeBattery = async (notify = true) => {
@@ -171,6 +175,16 @@ class XsensDot extends EventEmitter {
 		let measurement = {}
 
 		switch (payloadType) {
+			// Long payload length
+			case XSENS_DOT_PAYLOAD_TYPE.customMode5:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0),
+					quaternion: this.readQuaternion(data, 4),
+					acceleration: this.readAcceleration(data, 20),
+					angularVelocity: this.readAngularVelocity(data, 32),
+				}
+				break
+			// Medium payload length
 			case XSENS_DOT_PAYLOAD_TYPE.extendedQuaternion:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
@@ -203,6 +217,59 @@ class XsensDot extends EventEmitter {
 					timestamp: this.readTimestamp(data, 0),
 					euler: this.readEuler(data, 4),
 					freeAcceleration: this.readAcceleration(data, 16),
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.rateQuantities:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0),
+					acceleration: this.readAcceleration(data, 4),
+					angularVelocity: this.readAngularVelocity(data, 16),
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.rateQuantitiesWithMag:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0),
+					acceleration: this.readAcceleration(data, 4),
+					angularVelocity: this.readAngularVelocity(data, 16),
+					magneticField: this.readMagneticField(data, 28),
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.deltaQuantities:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0),
+					dq: this.readDq(data, 4),
+					dv: this.readDv(data, 20),
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.deltaQuantitiesWithMag:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0),
+					dq: this.readDq(data, 4),
+					dv: this.readDv(data, 20),
+					magneticField: this.readMagneticField(data, 32),
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.customMode1:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0),
+					euler: this.readEuler(data, 4),
+					freeAcceleration: this.readAcceleration(data, 16),
+					angularVelocity: this.readAngularVelocity(data, 28),
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.customMode2:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0),
+					euler: this.readEuler(data, 4),
+					freeAcceleration: this.readAcceleration(data, 16),
+					magneticField: this.readMagneticField(data, 28),
+				}
+				break
+			case XSENS_DOT_PAYLOAD_TYPE.customMode3:
+				measurement = {
+					timestamp: this.readTimestamp(data, 0),
+					quaternion: this.readQuaternion(data, 4),
+					angularVelocity: this.readAngularVelocity(data, 20),
 				}
 				break
 			case XSENS_DOT_PAYLOAD_TYPE.orientationQuaternion:
@@ -305,6 +372,43 @@ class XsensDot extends EventEmitter {
 			y: data.readFloatLE(offset + 4),
 			z: data.readFloatLE(offset + 8),
 		}
+	}
+
+	readDq = (data, offset) => {
+		return {
+			w: data.readFloatLE(offset),
+			x: data.readFloatLE(offset + 4),
+			y: data.readFloatLE(offset + 8),
+			z: data.readFloatLE(offset + 12),
+		}
+	}
+
+	readDv = (data, offset) => {
+		return {
+			x: data.readFloatLE(offset),
+			y: data.readFloatLE(offset + 4),
+			z: data.readFloatLE(offset + 8),
+		}
+	}
+
+	readAngularVelocity = (data, offset) => {
+		return {
+			x: data.readFloatLE(offset),
+			y: data.readFloatLE(offset + 4),
+			z: data.readFloatLE(offset + 8),
+		}
+	}
+
+	// TODO Read fixed point data (1.2 etc)
+	readMagneticField = (data, offset) => {
+		const TWO_POW_TWELVE = Math.pow(2, 12)
+
+		return {
+			x: data.readInt16LE(offset) / TWO_POW_TWELVE,
+			y: data.readInt16LE(offset + 2) / TWO_POW_TWELVE,
+			z: data.readInt16LE(offset + 4) / TWO_POW_TWELVE,
+		}
+
 	}
 
 	readStatus = (data, offset) => {
