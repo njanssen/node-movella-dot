@@ -123,6 +123,16 @@ The library currently supports the following payload types:
 -   `orientationEuler`
 -   `orientationQuaternion`
 -   `freeAcceleration`
+-   `deltaQuantities`
+-   `deltaQuantitiesWithMag`
+-   `rateQuantities`
+-   `rateQuantitiesWithMag`
+-   `customMode1`
+-   `customMode2`
+-   `customMode3`
+-   `customMode5`
+
+The payload types `highFidelity`, `highFidelityWithMag`, and `customMode4` are not supported by this library. These payload types can only be parsed by the official Xsens DOT SDKs.
 
 More detailed information about these measurement payloads can be found in the [Xsens DOT User Manual](https://www.xsens.com/hubfs/Downloads/Manuals/Xsens%20DOT%20User%20Manual.pdf).
 
