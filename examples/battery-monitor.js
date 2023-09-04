@@ -1,19 +1,19 @@
-import xsensManager from '../index.js'
+import movellaManager from '../index.js'
 
-xsensManager.on('dot', async (identifier) => {
+movellaManager.on('dot', async (identifier) => {
 	try {
-		await xsensManager.connect(identifier)
-		await xsensManager.subscribeBattery(identifier)
+		await movellaManager.connect(identifier)
+		await movellaManager.subscribeBattery(identifier)
 	} catch (error) {
-		console.error('Exception raised while connecting to Xsens DOT: ', error)
+		console.error('Exception raised while connecting to Movella DOT: ', error)
 	}
 })
 
-xsensManager.on('battery', (identifier, data) => {
+movellaManager.on('battery', (identifier, data) => {
 	console.log(`Battery level (${identifier}) = ${data.level}% ${data.charging ? '[charging]' : ''}`)
 })
 
 process.on('SIGINT', async () => {
-	await xsensManager.disconnectAll()
+	await movellaManager.disconnectAll()
 	process.exit()
 })

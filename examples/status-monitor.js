@@ -1,15 +1,15 @@
-import xsensManager, { STATUS_TYPE } from '../index.js'
+import movellaManager, { STATUS_TYPE } from '../index.js'
 
-xsensManager.on('dot', async (identifier) => {
+movellaManager.on('dot', async (identifier) => {
 	try {
-		await xsensManager.connect(identifier)
-		await xsensManager.subscribeStatus(identifier)
+		await movellaManager.connect(identifier)
+		await movellaManager.subscribeStatus(identifier)
 	} catch (error) {
-		console.error('Exception raised while connecting to Xsens DOT: ', error)
+		console.error('Exception raised while connecting to Movella DOT: ', error)
 	}
 })
 
-xsensManager.on('status', (identifier, status) => {
+movellaManager.on('status', (identifier, status) => {
 	switch (status) {
 		case STATUS_TYPE.powerOff:
 		case STATUS_TYPE.powerSaving:
@@ -22,6 +22,6 @@ xsensManager.on('status', (identifier, status) => {
 })
 
 process.on('SIGINT', async () => {
-	await xsensManager.disconnectAll()
+	await movellaManager.disconnectAll()
 	process.exit()
 })

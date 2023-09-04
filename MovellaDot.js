@@ -1,12 +1,12 @@
 import createDebug from 'debug'
 import EventEmitter from 'events'
-import { PERIPHERAL_STATE, XSENS_DOT_PAYLOAD_TYPE, XSENS_DOT_BLE_SPEC } from './constants.js'
-const debug = createDebug('xsens-dot:dot')
+import { PERIPHERAL_STATE, MOVELLA_DOT_PAYLOAD_TYPE, MOVELLA_DOT_BLE_SPEC } from './constants.js'
+const debug = createDebug('movella-dot:dot')
 
 /**
- * Xsens DOT Sensor Class (BLE peripheral)
+ * Movella DOT Sensor Class (BLE peripheral)
  */
-class XsensDot extends EventEmitter {
+class MovellaDot extends EventEmitter {
 	constructor(identifier, options) {
 		super()
 
@@ -16,7 +16,7 @@ class XsensDot extends EventEmitter {
 		this.peripheral = options.peripheral
 		this.characteristics = options.characteristics || {}
 
-		debug(`${this.identifier}/XsensDot - initialized new Xsens DOT instance`)
+		debug(`${this.identifier}/MovellaDot - initialized new Movella DOT instance`)
 	}
 
 	connect = async () => {
@@ -50,8 +50,8 @@ class XsensDot extends EventEmitter {
 	queryConfiguration = async () => {
 		if (!this.connected) return
 
-		const informationCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.information.uuid]
-		const controlCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.control.uuid]
+		const informationCharacteristic = this.characteristics[MOVELLA_DOT_BLE_SPEC.configuration.characteristics.information.uuid]
+		const controlCharacteristic = this.characteristics[MOVELLA_DOT_BLE_SPEC.configuration.characteristics.control.uuid]
 
 		const information = await informationCharacteristic.readAsync()
 		const control = await controlCharacteristic.readAsync()
@@ -77,7 +77,7 @@ class XsensDot extends EventEmitter {
 	subscribeStatus = async (notify = true) => {
 		if (!this.connected) return false
 
-		const reportCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.configuration.characteristics.report.uuid]
+		const reportCharacteristic = this.characteristics[MOVELLA_DOT_BLE_SPEC.configuration.characteristics.report.uuid]
 
 		if (notify) {
 			await reportCharacteristic.subscribeAsync()
@@ -96,7 +96,7 @@ class XsensDot extends EventEmitter {
 	}
 
 	listenerStatus = (data) => {
-		const status = XSENS_DOT_BLE_SPEC.configuration.characteristics.report.status[data.readInt8(0)] // 1 byte
+		const status = MOVELLA_DOT_BLE_SPEC.configuration.characteristics.report.status[data.readInt8(0)] // 1 byte
 		let timestamp
 		if (status === 'buttonCallback') {
 			timestamp = this.readTimestamp(data, 2)
@@ -108,7 +108,7 @@ class XsensDot extends EventEmitter {
 	subscribeBattery = async (notify = true) => {
 		if (!this.connected) return false
 
-		const batteryCharacteristic = this.characteristics[XSENS_DOT_BLE_SPEC.battery.characteristics.battery.uuid]
+		const batteryCharacteristic = this.characteristics[MOVELLA_DOT_BLE_SPEC.battery.characteristics.battery.uuid]
 
 		if (notify) {
 			await batteryCharacteristic.subscribeAsync()
@@ -138,10 +138,10 @@ class XsensDot extends EventEmitter {
 		this.emit('battery', battery)
 	}
 
-	subscribeMeasurement = async (payloadType = XSENS_DOT_PAYLOAD_TYPE.completeQuaternion, notify = true) => {
+	subscribeMeasurement = async (payloadType = MOVELLA_DOT_PAYLOAD_TYPE.completeQuaternion, notify = true) => {
 		if (!this.connected) return false
 
-		const service = XSENS_DOT_BLE_SPEC.measurement
+		const service = MOVELLA_DOT_BLE_SPEC.measurement
 		const control = service.characteristics.control
 		const measurement = service.characteristics[service.payloadCharacteristic[payloadType]]
 
@@ -176,7 +176,7 @@ class XsensDot extends EventEmitter {
 
 		switch (payloadType) {
 			// Long payload length
-			case XSENS_DOT_PAYLOAD_TYPE.customMode5:
+			case MOVELLA_DOT_PAYLOAD_TYPE.customMode5:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					quaternion: this.readQuaternion(data, 4),
@@ -185,7 +185,7 @@ class XsensDot extends EventEmitter {
 				}
 				break
 			// Medium payload length
-			case XSENS_DOT_PAYLOAD_TYPE.extendedQuaternion:
+			case MOVELLA_DOT_PAYLOAD_TYPE.extendedQuaternion:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					quaternion: this.readQuaternion(data, 4),
@@ -195,14 +195,14 @@ class XsensDot extends EventEmitter {
 					clipCountGyr: this.readClipCount(data, 35),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.completeQuaternion:
+			case MOVELLA_DOT_PAYLOAD_TYPE.completeQuaternion:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					quaternion: this.readQuaternion(data, 4),
 					freeAcceleration: this.readAcceleration(data, 20),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.extendedEuler:
+			case MOVELLA_DOT_PAYLOAD_TYPE.extendedEuler:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					euler: this.readEuler(data, 4),
@@ -212,21 +212,21 @@ class XsensDot extends EventEmitter {
 					clipCountGyr: this.readClipCount(data, 31),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.completeEuler:
+			case MOVELLA_DOT_PAYLOAD_TYPE.completeEuler:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					euler: this.readEuler(data, 4),
 					freeAcceleration: this.readAcceleration(data, 16),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.rateQuantities:
+			case MOVELLA_DOT_PAYLOAD_TYPE.rateQuantities:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					acceleration: this.readAcceleration(data, 4),
 					angularVelocity: this.readAngularVelocity(data, 16),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.rateQuantitiesWithMag:
+			case MOVELLA_DOT_PAYLOAD_TYPE.rateQuantitiesWithMag:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					acceleration: this.readAcceleration(data, 4),
@@ -234,14 +234,14 @@ class XsensDot extends EventEmitter {
 					magneticField: this.readMagneticField(data, 28),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.deltaQuantities:
+			case MOVELLA_DOT_PAYLOAD_TYPE.deltaQuantities:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					dq: this.readDq(data, 4),
 					dv: this.readDv(data, 20),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.deltaQuantitiesWithMag:
+			case MOVELLA_DOT_PAYLOAD_TYPE.deltaQuantitiesWithMag:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					dq: this.readDq(data, 4),
@@ -249,7 +249,7 @@ class XsensDot extends EventEmitter {
 					magneticField: this.readMagneticField(data, 32),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.customMode1:
+			case MOVELLA_DOT_PAYLOAD_TYPE.customMode1:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					euler: this.readEuler(data, 4),
@@ -257,7 +257,7 @@ class XsensDot extends EventEmitter {
 					angularVelocity: this.readAngularVelocity(data, 28),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.customMode2:
+			case MOVELLA_DOT_PAYLOAD_TYPE.customMode2:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					euler: this.readEuler(data, 4),
@@ -265,26 +265,26 @@ class XsensDot extends EventEmitter {
 					magneticField: this.readMagneticField(data, 28),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.customMode3:
+			case MOVELLA_DOT_PAYLOAD_TYPE.customMode3:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					quaternion: this.readQuaternion(data, 4),
 					angularVelocity: this.readAngularVelocity(data, 20),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.orientationQuaternion:
+			case MOVELLA_DOT_PAYLOAD_TYPE.orientationQuaternion:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					quaternion: this.readQuaternion(data, 4),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.orientationEuler:
+			case MOVELLA_DOT_PAYLOAD_TYPE.orientationEuler:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					euler: this.readEuler(data, 4),
 				}
 				break
-			case XSENS_DOT_PAYLOAD_TYPE.freeAcceleration:
+			case MOVELLA_DOT_PAYLOAD_TYPE.freeAcceleration:
 				measurement = {
 					timestamp: this.readTimestamp(data, 0),
 					freeAcceleration: this.readAcceleration(data, 4),
@@ -408,7 +408,6 @@ class XsensDot extends EventEmitter {
 			y: data.readInt16LE(offset + 2) / TWO_POW_TWELVE,
 			z: data.readInt16LE(offset + 4) / TWO_POW_TWELVE,
 		}
-
 	}
 
 	readStatus = (data, offset) => {
@@ -435,4 +434,4 @@ class XsensDot extends EventEmitter {
 	}
 }
 
-export default XsensDot
+export default MovellaDot

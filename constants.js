@@ -14,7 +14,7 @@ export const PERIPHERAL_STATE = {
 	disconnecting: 'disconnecting',
 }
 
-export const XSENS_DOT_PAYLOAD_TYPE = Object.freeze({
+export const MOVELLA_DOT_PAYLOAD_TYPE = Object.freeze({
 	// Unsupported: customMode4, highFidelity, highFidelityWithMag
 	customMode5: 'customMode5',
 	extendedQuaternion: 'extendedQuaternion',
@@ -33,7 +33,7 @@ export const XSENS_DOT_PAYLOAD_TYPE = Object.freeze({
 	freeAcceleration: 'freeAcceleration',
 })
 
-export const XSENS_DOT_STATUS_TYPE = Object.freeze({
+export const MOVELLA_DOT_STATUS_TYPE = Object.freeze({
 	successful: 'successful',
 	powerOff: 'powerOff',
 	deviceBusy: 'deviceBusy',
@@ -42,8 +42,9 @@ export const XSENS_DOT_STATUS_TYPE = Object.freeze({
 	buttonCallback: 'buttonCallback'
 })
 
-export const XSENS_DOT_BLE_SPEC = {
-	localName: 'Xsens DOT',
+export const MOVELLA_DOT_BLE_SPEC = {
+	localName: 'Movella DOT',
+	localNameLegacy: 'Xsens DOT',
 	configuration: {
 		uuid: '15171000494711e98646d663bd873d93',
 		characteristics: {

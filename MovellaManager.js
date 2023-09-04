@@ -1,16 +1,16 @@
 import createDebug from 'debug'
 import noble from '@abandonware/noble'
 import EventEmitter from 'events'
-import Dot from './XsensDot.js'
+import Dot from './MovellaDot.js'
 import { v4 as uuidv4 } from 'uuid'
-import { BLE_STATE, XSENS_DOT_BLE_SPEC } from './constants.js'
+import { BLE_STATE, MOVELLA_DOT_BLE_SPEC } from './constants.js'
 
-const debug = createDebug('xsens-dot:manager')
+const debug = createDebug('movella-dot:manager')
 
 /**
- * Xsens DOT Manager Class (BLE central)
+ * Movella DOT Manager Class (BLE central)
  */
-class XsensManager extends EventEmitter {
+class MovellaManager extends EventEmitter {
 	constructor(options = {}) {
 		super()
 		this.central = noble
@@ -41,10 +41,13 @@ class XsensManager extends EventEmitter {
 		})
 
 		this.central.on('discover', async (peripheral) => {
-			if (peripheral.advertisement.localName === XSENS_DOT_BLE_SPEC.localName && typeof peripheral.identifier === 'undefined') {
+			if (
+				(peripheral.advertisement.localName === MOVELLA_DOT_BLE_SPEC.localName || peripheral.advertisement.localName === MOVELLA_DOT_BLE_SPEC.localNameLegacy) &&
+				typeof peripheral.identifier === 'undefined'
+			) {
 				const identifier = uuidv4()
 				peripheral.identifier = identifier
-				debug(`central/discover - discovered new Xsens DOT (${identifier})`)
+				debug(`central/discover - discovered new Movella DOT (${identifier})`)
 
 				const dot = new Dot(identifier, { peripheral: peripheral })
 				this.devices.set(identifier, dot)
@@ -56,7 +59,7 @@ class XsensManager extends EventEmitter {
 			debug('central/warning:', message)
 		})
 
-		debug('XsensDotManager - initialized Xsens DOT manager instance')
+		debug('MovellaDotManager - initialized Movella DOT manager instance')
 	}
 
 	reset = async () => {
@@ -236,12 +239,12 @@ class XsensManager extends EventEmitter {
 }
 
 /**
- * Xsens DOT Manager Singleton
+ * Movella DOT Manager Singleton
  */
 class Singleton {
 	constructor() {
 		if (!Singleton.instance) {
-			Singleton.instance = new XsensManager()
+			Singleton.instance = new MovellaManager()
 		}
 	}
 

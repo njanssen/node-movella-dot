@@ -1,7 +1,7 @@
 {
-  "name": "@vliegwerk/xsens-dot",
-  "version": "2.1.0",
-  "description": "Node.js interface for the Xsens DOT motion tracker",
+  "name": "@appliedcreative/movella-dot",
+  "version": "3.0.0",
+  "description": "Node.js interface for the Movella DOT motion tracker",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -9,10 +9,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/njanssen/node-xsens-dot.git"
+    "url": "git+https://github.com/njanssen/node-movella-dot.git"
   },
   "keywords": [
     "xsens",
+    "movella",
     "dot",
     "wearable",
     "ble",
@@ -20,12 +21,12 @@
     "sensors",
     "imu"
   ],
-  "author": "Vliegwerk ❯ Niels Janssen",
+  "author": "Applied Creative ❯ Niels Janssen",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/njanssen/node-xsens-dot/issues"
+    "url": "https://github.com/njanssen/node-movella-dot/issues"
   },
-  "homepage": "https://github.com/njanssen/node-xsens-dot#readme",
+  "homepage": "https://github.com/njanssen/node-movella-dot#readme",
   "dependencies": {
     "@abandonware/noble": "^1.9.2-14",
     "debug": "^4.3.1",

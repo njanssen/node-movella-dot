@@ -1,11 +1,11 @@
-import xsensManager from '../index.js'
+import movellaManager from '../index.js'
 
-xsensManager.on('dot', async (identifier) => {
+movellaManager.on('dot', async (identifier) => {
 	try {
-		await xsensManager.connect(identifier)
-		console.log(`Configuration (${identifier}): `, xsensManager.configuration(identifier))
-		await xsensManager.disconnect(identifier)
+		await movellaManager.connect(identifier)
+		console.log(`Configuration (${identifier}): `, movellaManager.configuration(identifier))
+		await movellaManager.disconnect(identifier)
 	} catch (error) {
-		console.error('Exception raised while connecting to Xsens DOT: ', error)
+		console.error('Exception raised while connecting to Movella DOT: ', error)
 	}
 })
